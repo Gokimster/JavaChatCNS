@@ -31,9 +31,15 @@ public class ClientGUI extends JFrame implements ActionListener
     add(topPanel, BorderLayout.NORTH);
 
     JPanel midPanel = new JPanel (new GridLayout(1,1));
-    message = new JTextArea();
+    message = new JTextArea(200, 200);
     midPanel.add(message);
     add(midPanel, BorderLayout.CENTER);
+
+    JPanel botPanel = new JPanel (new GridLayout(1,1));
+    send = new JButton("Send Message");
+    botPanel.add(send);
+    add(botPanel, BorderLayout.SOUTH);
+    
     setDefaultCloseOperation(EXIT_ON_CLOSE);
     setSize(600, 600);
     setVisible(true);
