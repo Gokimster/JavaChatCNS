@@ -45,3 +45,6 @@ Temporary Items
 /Client.class
 /ClientGUI.class
 /Server.class
+/Message.class
+/MessageManager.class
+/Test.class

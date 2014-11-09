@@ -2,6 +2,11 @@ public class Base64 {
   static byte[] code = new byte[64];
   static int[] decode = new int[128];
 
+  Base64()
+  {
+    init();
+  }
+
   public static void init() {
     for (int i=0;i<26;i++) code[i] = (byte)('A' + i);
     for (int i=0;i<26;i++) code[26 + i] = (byte)('a' + i);
