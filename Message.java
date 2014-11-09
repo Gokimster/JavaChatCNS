@@ -28,7 +28,7 @@ public class Message
   //returns the date and time in String format
   public String getTimestamp()
   {
-  	SimpleDateFormat sdt = new SimpleDateFormat("[dd.MM.'yy-HH:mm:ss]");
+  	SimpleDateFormat sdt = new SimpleDateFormat("[dd.MM. yy-HH:mm:ss]");
   	return sdt.format(date);
   }
 

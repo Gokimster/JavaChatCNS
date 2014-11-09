@@ -51,7 +51,7 @@ public class MessageManager
   }
 
   //returns an ArrayList of all messages with they texts decrypted
-  public ArrayList getDecryptedMessages()
+  public ArrayList <Message> getDecryptedMessages()
   {
     ArrayList <Message> l= new ArrayList <Message>();
     for (int i = 0; i < messages.size(); i++)
