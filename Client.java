@@ -1,9 +1,42 @@
 import java.io.*;
 import javax.net.ssl.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.net.Socket;
 
 public class Client {
-	public static void main(String[] args) {
-	 try {
+	
+	public static void main(String[] args) {	       
+		        try
+		        {
+		            Socket sock = new Socket("localhost",9999);
+		            
+		            PrintStream pr = new PrintStream(sock.getOutputStream());
+		            
+		            System.out.print("Enter Something : ");
+		          
+		            InputStreamReader rd = new InputStreamReader(System.in);
+		            BufferedReader ed = new BufferedReader(rd);
+		            
+		            String temp = ed.readLine();
+		            
+		            pr.println(temp);
+		        
+		            BufferedReader gt = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+		            
+		            String tm = gt.readLine();
+		            System.out.print(tm);
+		            
+		        }
+		        catch(Exception ex)
+		        {
+		            
+		        }
+		    }
+		
+		
+	 /*try {
 	   SSLSocketFactory f =
 	          (SSLSocketFactory)SSLSocketFactory.getDefault();
 	   int port = Integer.parseInt(args[1]);
@@ -12,9 +45,8 @@ public class Client {
 	   System.out.println("mode: " + s.getSession().getCipherSuite());
 	   OutputStream output = s.getOutputStream();
 	   output.write(args[2].getBytes());
-	 } catch (Exception e) { e.printStackTrace(); }
+	 } catch (Exception e) { e.printStackTrace(); }*/
 	}
-}
 
 /* SSL example is changed to authenticate server by using
 

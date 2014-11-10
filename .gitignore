@@ -53,3 +53,5 @@ Temporary Items
 /ClientGUI$3.class
 /SSLClient.class
 /SSLServer.class
+/ClientThread.class
+/Server$ClientThread.class
