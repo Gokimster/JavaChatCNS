@@ -14,6 +14,7 @@ public class ClientGUI extends JFrame implements ActionListener
   MessageManager mm;
   JPanel messageCreationPanel, messageArchivePanel;
   JTabbedPane tabPane;
+  JScrollPane panelScroll;
 
   ClientGUI()
   {
@@ -27,7 +28,7 @@ public class ClientGUI extends JFrame implements ActionListener
     initMessageArchivePanel();
     tabPane = new JTabbedPane();
     tabPane.add("Create Message", messageCreationPanel);
-    tabPane.add("Message Archive", messageArchivePanel);
+    tabPane.add("Message Archive", panelScroll);
     add(tabPane);
     setDefaultCloseOperation(EXIT_ON_CLOSE);
     setBounds(500, 200, 500, 500);
@@ -73,29 +74,47 @@ public class ClientGUI extends JFrame implements ActionListener
     ArrayList <Message> messages = mm.getDecryptedMessages();
     for (int i = messages.size() -1 ; i >= 0; i--)
     {
-      messageArchivePanel.add(createMessagePanel(messages.get(i)));
+      JPanel oneMessage;
+      if (i % 2 == 0)
+      {
+        oneMessage = createMessagePanel(messages.get(i), true);
+      }
+      else 
+      {
+        oneMessage = createMessagePanel(messages.get(i), false);
+      }
+      messageArchivePanel.add(oneMessage);
     }
+    panelScroll = new JScrollPane(messageArchivePanel);
   }
 
   //refreshes the archive panel with new messages
   private void refreshArchivePanel()
   {
-    tabPane.remove(messageArchivePanel);
+    tabPane.remove(panelScroll);
     initMessageArchivePanel();
-    tabPane.add("Message Archive",messageArchivePanel);
+    tabPane.add("Message Archive",panelScroll);
   }
 
   //create a panel with the information of a single message
-  private JPanel createMessagePanel(Message m)
+  private JPanel createMessagePanel(Message m, boolean changeColor)
   {
     JPanel main = new JPanel(new BorderLayout());
     JPanel northPanel = new JPanel(new GridLayout(3,1));
-    northPanel.add(new JLabel(m.getSender()));
-    northPanel.add(new JLabel(m.getTimestamp()));
-    northPanel.add(new JLabel(m.getTitle()));
+    northPanel.add(new JLabel("By: " + m.getSender()));
+    northPanel.add(new JLabel("At: " + m.getTimestamp()));
+    northPanel.add(new JLabel(m.getTitle()+":"));
+    if (changeColor)
+    {
+      northPanel.setBackground(Color.WHITE);
+    }
     main.add(northPanel, BorderLayout.NORTH);
     JPanel midPanel = new JPanel(new GridLayout(1,1));
     midPanel.add(new JLabel(m.getText()));
+    if (changeColor)
+    {
+     midPanel.setBackground(Color.WHITE);
+    }
     main.add(midPanel);
     return main;
   }
