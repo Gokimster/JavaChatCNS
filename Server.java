@@ -17,3 +17,19 @@ public class Server {
    } catch (Exception e) { e.printStackTrace(); }
  }
 }
+/* FOR SOCKET FACTORY
+
+ SSL example is changed to authenticate server by using
+
+    truststore "trust" for SSL client with store password "giants"
+    keystore "key" for SSL server with store password "broncos"
+    password "rams" for private key in keystore "key"
+
+
+KeyStore ks = KeyStore.getInstance("JKS");
+ks.load(new FileInputStream("key"), "broncos".toCharArray());
+KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+kmf.init(ks, "rams".toCharArray());
+SSLContext sc = SSLContext.getInstance("SSLv3");
+sc.init(kmf.getKeyManagers(), null, null);
+SSLServerSocketFactory f = sc.getServerSocketFactory(); */ 
