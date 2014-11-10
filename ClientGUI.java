@@ -71,7 +71,7 @@ public class ClientGUI extends JFrame implements ActionListener
   {
     messageArchivePanel = new JPanel(new GridLayout(0,1));
     ArrayList <Message> messages = mm.getDecryptedMessages();
-    for (int i = 0; i < messages.size(); i++)
+    for (int i = messages.size() -1 ; i >= 0; i--)
     {
       messageArchivePanel.add(createMessagePanel(messages.get(i)));
     }
