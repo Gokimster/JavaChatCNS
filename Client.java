@@ -1,13 +1,17 @@
 import java.io.*;
-import java.net.*;
+import javax.net.ssl.*;
 
 public class Client {
-  public static void main(String argv[]) {
-    try {
-      Socket socket = new Socket(argv[0], 6001); // connect
-      OutputStream output = socket.getOutputStream();
-      output.write(argv[1].getBytes()); // send message
-      output.flush(); // flush connection
-    } catch (IOException e) { System.err.println(e.getMessage()); }
-  }
+	public static void main(String[] args) {
+	 try {
+	   SSLSocketFactory f =
+	          (SSLSocketFactory)SSLSocketFactory.getDefault();
+	   int port = Integer.parseInt(args[1]);
+	   SSLSocket s = (SSLSocket)f.createSocket(args[0], port);
+	   s.setEnabledCipherSuites(s.getSupportedCipherSuites());
+	   System.out.println("mode: " + s.getSession().getCipherSuite());
+	   OutputStream output = s.getOutputStream();
+	   output.write(args[2].getBytes());
+	 } catch (Exception e) { e.printStackTrace(); }
+	}
 }

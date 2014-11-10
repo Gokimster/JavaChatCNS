@@ -1,16 +1,19 @@
 import java.io.*;
-  import java.net.*;
+import javax.net.ssl.*;
 
-  public class Server {
-   public static void main(String args[]) {
-    byte[] buf = new byte[1024];
-    try {
-      ServerSocket s = new ServerSocket(6001, 5); // create socket
-      Socket sock = s.accept(); // accept connection
-      InputStream input = sock.getInputStream();
-      int n = input.read(buf); // read message
-      System.out.println("Message: " + new String(buf, 0, n));
-      sock.close(); // close connection
-    } catch (IOException e) { System.err.println(e.getMessage()); }
-   }
-  }
+public class Server {
+ public static void main(String[] args) {
+   byte[] buf = new byte[1024];
+   try {
+     SSLServerSocketFactory f =
+         (SSLServerSocketFactory)SSLServerSocketFactory.getDefault();
+     int port = Integer.parseInt(args[0]);
+     SSLServerSocket s = (SSLServerSocket)f.createServerSocket(port);
+     s.setEnabledCipherSuites(s.getSupportedCipherSuites());
+     SSLSocket sock = (SSLSocket)s.accept();
+     InputStream input = sock.getInputStream();
+     int n = input.read(buf);
+     System.out.println("Message: " + new String(buf, 0, n));
+   } catch (Exception e) { e.printStackTrace(); }
+ }
+}
