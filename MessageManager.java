@@ -15,9 +15,9 @@ public class MessageManager
 
   //adds a new message with encrypted text
   //if the max number of messages is exceeded, remove the oldest message
-  public void addMessage(String sender, String tite, String text)
+  public void addMessage(String author, String tite, String text)
   {
-    Message message = new Message(sender, tite, encryptMessageText(text));
+    Message message = new Message(author, tite, encryptMessageText(text));
     //testing print- to be REMOVED
     System.out.println(encryptMessageText(text));
     if (messages.size() >= MAX_MESSAGES)
@@ -46,7 +46,7 @@ public class MessageManager
   //decrypts a message
   private Message decryptMessage(Message m)
   {
-    Message decrypted = new Message(m.getSender(), m.getTitle(), decryptMessageText(m.getText()), m.getDate());
+    Message decrypted = new Message(m.getAuthor(), m.getTitle(), decryptMessageText(m.getText()), m.getDate());
     return decrypted;
   }
 

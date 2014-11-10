@@ -8,13 +8,13 @@ import java.util.ArrayList;
 public class ClientGUI extends JFrame implements ActionListener 
 {
 
-  JTextField userID, pass, title;
+  JTextField userID, pass, title, authorSearch, titleSearch;
   JTextArea message;
   JButton sendButton;
   MessageManager mm;
-  JPanel messageCreationPanel, messageArchivePanel;
+  JPanel messageCreationPanel, messageArchivePanel, messageSearchPanel;
   JTabbedPane tabPane;
-  JScrollPane panelScroll;
+  JScrollPane panelScroll, searchScroll;
 
   ClientGUI()
   {
@@ -88,12 +88,45 @@ public class ClientGUI extends JFrame implements ActionListener
     panelScroll = new JScrollPane(messageArchivePanel);
   }
 
+  private void initMessageSearchPanel()
+  {
+    messageSearchPanel = new JPanel(new BorderLayout());
+    JPanel northPanel = new JPanel(new GridLayout(2,2));
+    northPanel.add(new JLabel("Author: "));
+    authorSearch = new JTextField();
+    northPanel.add(authorSearch);
+    northPanel.add(new JLabel("Title: "));
+    titleSearch = new JTextField();
+    northPanel.add(titleSearch);
+    add(northPanel, BorderLayout.NORTH);
+    midPanel = new JPanel(new GridLayout(0,1));
+    searchScroll = new JScrollPane(midPanel);
+  }
+
   //refreshes the archive panel with new messages
   private void refreshArchivePanel()
   {
     tabPane.remove(panelScroll);
     initMessageArchivePanel();
-    tabPane.add("Message Archive",panelScroll);
+    tabPane.add("Message Archive",panelScroll, 1);
+  }
+
+  private void refreshSearchPanel()
+  {
+    messageSearchPanel.remove(searchScroll);
+    midPanel = new JPanel(new GridLayout(0,1));
+    ArrayList <Message> messages = mm.getDecryptedMessages();
+    for (int i = messages.size() -1 ; i >= 0; i--)
+    {
+      Message m = messages.get(i);
+      if (authorSearch.getText()
+      if (m.getAuthor().equals(authorSearch.getText()))
+      {
+        if (m.getTitle())
+      }
+    }
+
+    searchScroll = new JScrollPane(midPanel)
   }
 
   //create a panel with the information of a single message
@@ -101,7 +134,7 @@ public class ClientGUI extends JFrame implements ActionListener
   {
     JPanel main = new JPanel(new BorderLayout());
     JPanel northPanel = new JPanel(new GridLayout(3,1));
-    northPanel.add(new JLabel("By: " + m.getSender()));
+    northPanel.add(new JLabel("By: " + m.getAuthor()));
     northPanel.add(new JLabel("At: " + m.getTimestamp()));
     northPanel.add(new JLabel(m.getTitle()+":"));
     if (changeColor)
@@ -122,15 +155,15 @@ public class ClientGUI extends JFrame implements ActionListener
   //sends a message and refreshes the archive panel to show the message
   private void sendButtonAction()
   {
-    if (checkBoxesFilled() == true)
+    if (checkMessageBoxesFilled() == true)
     {
       mm.addMessage(userID.getText(), title.getText(), message.getText());
     }
     refreshArchivePanel();
   }
 
-  //checks if any of the boxes are empty, returns false if so
-  public boolean checkBoxesFilled()
+  //checks if any of the boxes in the message creation tab are empty, returns false if so
+  public boolean checkMessageBoxesFilled()
   {
     if (userID.getText().equals(""))
     {

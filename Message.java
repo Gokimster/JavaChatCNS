@@ -4,22 +4,22 @@ import java.text.*;
 public class Message 
 {
   
-  String sender, title, text;
+  String author, title, text;
   Date date;
 
   //instantiates a message with the current date and time
-  Message(String sender, String title, String text)
+  Message(String author, String title, String text)
   {
-  	this.sender = sender;
+  	this.author = author;
   	this.title = title;
   	this.text = text;
   	date = new Date();
   }
 
   //instantiates a message with a specified date and time (used when decrypting the messages)
-  Message(String sender, String title, String text, Date date)
+  Message(String author, String title, String text, Date date)
   {
-  	this.sender = sender;
+  	this.author = author;
   	this.title = title;
   	this.text = text;
   	this.date = date;
@@ -38,9 +38,9 @@ public class Message
   	return date;
   }
 
-  public String getSender()
+  public String getAuthor()
   {
-  	return sender;
+  	return author;
   }
 
   public String getTitle()
