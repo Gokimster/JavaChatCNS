@@ -24,6 +24,7 @@ public class Server {
 	}
 
 	public void initialize() {
+		active = true;
 		try {
 			// the socket used by the server
 			ServerSocket ss = new ServerSocket(port);
@@ -62,7 +63,7 @@ public class Server {
 				// in case something doesnt want to close
 			} catch (Exception e) {
 				System.out
-						.println("Problem with the closing of the threads and the in/out streams "
+						.println("1 Problem with the closing of the threads and the in/out streams "
 								+ e);
 			}
 		}
@@ -118,19 +119,19 @@ class ClientThread extends Thread {
 
 	public ClientThread(Socket sock) {
 		socket = sock;
-
+		System.out.println("New thread connected");
 		// try to create output/input streams
 		try {
 			in = new ObjectInputStream(sock.getInputStream());
 			out = new ObjectOutputStream(sock.getOutputStream());
-			author = ((Message) in.readObject()).getAuthor();
+			//author = ((Message) in.readObject()).getAuthor();
 		} catch (IOException e) {
 			System.out
 					.println("There was an error creating the input/output stream"
 							+ e.toString());
-		} catch (ClassNotFoundException e1) {
-			System.out.println("Problem with the sender");
-		}
+		} //catch (ClassNotFoundException e1) {
+		//	System.out.println("Problem with the sender");
+		//}
 
 	}
 

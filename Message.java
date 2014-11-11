@@ -1,7 +1,8 @@
 import java.util.*;
+import java.io.Serializable;
 import java.text.*;
 
-public class Message 
+public class Message implements Serializable
 {
   
   String author, title, text;
