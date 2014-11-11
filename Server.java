@@ -9,8 +9,6 @@ import javax.net.ssl.SSLSocket;
 
 public class Server {
 
-	// userID
-	public static String uID;
 	// a list keeping the client list
 	private ArrayList<ClientThread> ct;
 	// which port to be listening at
@@ -76,11 +74,9 @@ public class Server {
 	}
 	
 	private synchronized void distributeMessage(Message msg){
-		String message_text = msg.getText();
-		String message_author = msg.getAuthor();
 		for(int i=ct.size(); i>0; i--){
 			ClientThread current = ct.get(i);
-			if((current.sendMessage(message_text, message_author))==0){
+			if((current.sendMessage(msg))==0){
 				System.out.println("The user has disconnected");
 			}
 		}
@@ -110,9 +106,8 @@ public class Server {
 
 class ClientThread extends Thread {
 
-	private String author;
+	//private String author;
 	public Socket socket;
-	Message message;
 	ObjectInputStream in;
 	ObjectOutputStream out;
 	boolean isActive = true;
@@ -138,7 +133,7 @@ class ClientThread extends Thread {
 	public void active() {
 		while (isActive) {
 			try {
-				message = (Message) in.readObject();
+				Message message = (Message) in.readObject();
 			} catch (IOException e) {
 				System.out
 						.println("There was a problem reading the messaage object "
@@ -146,8 +141,8 @@ class ClientThread extends Thread {
 			} catch (ClassNotFoundException e1) {
 				// I don't know what to do in this case tbf
 			}
-			String message_text = message.getText();
-			System.out.println(author + ":" + message_text);
+			//String message_text = message.getText();
+			//System.out.println(message.getAuthor()+ ":" + message_text);
 		}
 		closeConnections();
 	}
@@ -173,13 +168,12 @@ class ClientThread extends Thread {
 		}
 	}
 
-	public int sendMessage(String mssg, String title) {
+	public int sendMessage(Message msg) {
 		if (!socket.isConnected()) {
 			return 0;
 		}
-		Message newMessage = new Message(author, title, mssg);
 		try {
-			out.writeObject(newMessage.getText());
+			out.writeObject(msg.getText());
 		} catch (IOException e) {
 			System.out.println("error writing message to server");
 		}
