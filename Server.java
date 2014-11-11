@@ -76,10 +76,10 @@ public class Server {
 	
 	private synchronized void distributeMessage(Message msg){
 		String message_text = msg.getText();
-		String message_sender = msg.getSender();
+		String message_author = msg.getAuthor();
 		for(int i=ct.size(); i>0; i--){
 			ClientThread current = ct.get(i);
-			if((current.sendMessage(message_text, message_sender))==0){
+			if((current.sendMessage(message_text, message_author))==0){
 				System.out.println("The user has disconnected");
 			}
 		}
@@ -109,7 +109,7 @@ public class Server {
 
 class ClientThread extends Thread {
 
-	private String sender;
+	private String author;
 	public Socket socket;
 	Message message;
 	ObjectInputStream in;
@@ -123,7 +123,7 @@ class ClientThread extends Thread {
 		try {
 			in = new ObjectInputStream(sock.getInputStream());
 			out = new ObjectOutputStream(sock.getOutputStream());
-			sender = ((Message) in.readObject()).getSender();
+			author = ((Message) in.readObject()).getAuthor();
 		} catch (IOException e) {
 			System.out
 					.println("There was an error creating the input/output stream"
@@ -146,7 +146,7 @@ class ClientThread extends Thread {
 				// I don't know what to do in this case tbf
 			}
 			String message_text = message.getText();
-			System.out.println(sender + ":" + message_text);
+			System.out.println(author + ":" + message_text);
 		}
 		closeConnections();
 	}
@@ -176,7 +176,7 @@ class ClientThread extends Thread {
 		if (!socket.isConnected()) {
 			return 0;
 		}
-		Message newMessage = new Message(sender, title, mssg);
+		Message newMessage = new Message(author, title, mssg);
 		try {
 			out.writeObject(newMessage.getText());
 		} catch (IOException e) {
