@@ -54,9 +54,10 @@ public class ClientGUI extends JFrame implements ActionListener
     messageCreationPanel.add(topPanel, BorderLayout.NORTH);
 
     JPanel midPanel = new JPanel (new GridLayout(1,1));
-    message = new JTextArea(200, 200);
+    message = new JTextArea();
     midPanel.add(message);
-    messageCreationPanel.add(midPanel, BorderLayout.CENTER);
+    JScrollPane midScroll = new JScrollPane(midPanel);
+    messageCreationPanel.add(midScroll, BorderLayout.CENTER);
 
     JPanel botPanel = new JPanel (new GridLayout(1,2));
     sendButton = new JButton("Send Message");
@@ -73,7 +74,7 @@ public class ClientGUI extends JFrame implements ActionListener
   private void initMessageArchivePanel()
   {
     messageArchivePanel = new JPanel(new GridLayout(0,1));
-    ArrayList <Message> messages = mm.getDecryptedMessages();
+    ArrayList <Message> messages = mm.getMessages();
     for (int i = messages.size() -1 ; i >= 0; i--)
     {
       JPanel oneMessage;
@@ -127,7 +128,7 @@ public class ClientGUI extends JFrame implements ActionListener
   {
     messageSearchPanel.remove(searchScroll);
     JPanel midPanel = new JPanel(new GridLayout(0,1));
-    ArrayList <Message> messages = mm.getDecryptedMessages();
+    ArrayList <Message> messages = mm.getMessages();
     int counter = 0;
     for (int i = messages.size() -1 ; i >= 0; i--)
     {
@@ -189,6 +190,7 @@ public class ClientGUI extends JFrame implements ActionListener
   {
     if (checkMessageBoxesFilled() == true)
     {
+      System.out.println(message.getText());
       mm.addMessage(userID.getText(), title.getText(), message.getText());
     }
     refreshArchivePanel();
