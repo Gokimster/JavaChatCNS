@@ -10,7 +10,7 @@ public class ClientGUI extends JFrame implements ActionListener
 
   JTextField userID, pass, title, authorSearch, titleSearch;
   JTextArea message;
-  JButton sendButton;
+  JButton sendButton, searchButton;
   MessageManager mm;
   JPanel messageCreationPanel, messageArchivePanel, messageSearchPanel;
   JTabbedPane tabPane;
@@ -25,9 +25,11 @@ public class ClientGUI extends JFrame implements ActionListener
   {
     mm= new MessageManager();
     initMessageCreationPanel();
+    initMessageSearchPanel();
     initMessageArchivePanel();
     tabPane = new JTabbedPane();
     tabPane.add("Create Message", messageCreationPanel);
+    tabPane.add("Search for Messages", messageSearchPanel);
     tabPane.add("Message Archive", panelScroll);
     add(tabPane);
     setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -98,9 +100,19 @@ public class ClientGUI extends JFrame implements ActionListener
     northPanel.add(new JLabel("Title: "));
     titleSearch = new JTextField();
     northPanel.add(titleSearch);
-    add(northPanel, BorderLayout.NORTH);
-    midPanel = new JPanel(new GridLayout(0,1));
+    messageSearchPanel.add(northPanel, BorderLayout.NORTH);
+    JPanel midPanel = new JPanel(new GridLayout(0,1));
     searchScroll = new JScrollPane(midPanel);
+    messageSearchPanel.add(searchScroll, BorderLayout.CENTER);
+    JPanel botPanel = new JPanel(new GridLayout(1,1));
+    searchButton = new JButton("Search");
+    searchButton.addActionListener(new ActionListener() {  
+            public void actionPerformed(ActionEvent e)
+            {
+                searchButtonAction();
+            }});
+    botPanel.add(searchButton);
+    messageSearchPanel.add(botPanel, BorderLayout.SOUTH);
   }
 
   //refreshes the archive panel with new messages
@@ -108,25 +120,41 @@ public class ClientGUI extends JFrame implements ActionListener
   {
     tabPane.remove(panelScroll);
     initMessageArchivePanel();
-    tabPane.add("Message Archive",panelScroll, 1);
+    tabPane.add("Message Archive",panelScroll);
   }
 
-  private void refreshSearchPanel()
+  private int refreshSearchPanel()
   {
     messageSearchPanel.remove(searchScroll);
-    midPanel = new JPanel(new GridLayout(0,1));
+    JPanel midPanel = new JPanel(new GridLayout(0,1));
     ArrayList <Message> messages = mm.getDecryptedMessages();
+    int counter = 0;
     for (int i = messages.size() -1 ; i >= 0; i--)
     {
       Message m = messages.get(i);
-      if (authorSearch.getText()
       if (m.getAuthor().equals(authorSearch.getText()))
-      {
-        if (m.getTitle())
-      }
+        if ((titleSearch.getText().equals("")) || (m.getTitle().equals(titleSearch.getText())))
+        {
+          if (++counter % 2 != 0)
+            midPanel.add(createMessagePanel(m, false));
+          else 
+            midPanel.add(createMessagePanel(m, true));
+        }
+      else
+        if (m.getTitle().equals(titleSearch.getText()))
+          if (authorSearch.getText().equals(""))
+          {
+            if (++counter % 2 != 0)
+              midPanel.add(createMessagePanel(m, false));
+            else 
+              midPanel.add(createMessagePanel(m, true));
+          }
     }
-
-    searchScroll = new JScrollPane(midPanel)
+    searchScroll = new JScrollPane(midPanel);
+    messageSearchPanel.add(searchScroll, BorderLayout.CENTER);
+    messageSearchPanel.revalidate();
+    messageSearchPanel.repaint();
+    return counter;
   }
 
   //create a panel with the information of a single message
@@ -160,6 +188,28 @@ public class ClientGUI extends JFrame implements ActionListener
       mm.addMessage(userID.getText(), title.getText(), message.getText());
     }
     refreshArchivePanel();
+  }
+
+  private void searchButtonAction()
+  {
+    if (checkSearchBoxesFilled())
+    {
+      if (refreshSearchPanel() == 0)
+      {
+        showErrorMessage("No messages found", "We could not find a message with which fits the author and title provided!");
+      }
+    }
+  }
+
+  //checks if both of the boxes in the search tab are empty
+  public boolean checkSearchBoxesFilled()
+  {
+    if ((authorSearch.getText().equals("")) && (titleSearch.getText().equals("")))
+    {
+      showErrorMessage("No search parameters", "Please fill in at least one search criteria!");
+      return false;
+    }
+    return true;
   }
 
   //checks if any of the boxes in the message creation tab are empty, returns false if so
