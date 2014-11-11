@@ -133,6 +133,7 @@ public class ClientGUI extends JFrame implements ActionListener
     {
       Message m = messages.get(i);
       if (m.getAuthor().equals(authorSearch.getText()))
+      {
         if ((titleSearch.getText().equals("")) || (m.getTitle().equals(titleSearch.getText())))
         {
           if (++counter % 2 != 0)
@@ -140,15 +141,18 @@ public class ClientGUI extends JFrame implements ActionListener
           else 
             midPanel.add(createMessagePanel(m, true));
         }
+      }
       else
-        if (m.getTitle().equals(titleSearch.getText()))
-          if (authorSearch.getText().equals(""))
+        if (authorSearch.getText().equals(""))
+        {
+          if (m.getTitle().equals(titleSearch.getText()))
           {
             if (++counter % 2 != 0)
               midPanel.add(createMessagePanel(m, false));
             else 
               midPanel.add(createMessagePanel(m, true));
           }
+        }
     }
     searchScroll = new JScrollPane(midPanel);
     messageSearchPanel.add(searchScroll, BorderLayout.CENTER);
