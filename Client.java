@@ -1,31 +1,52 @@
 import java.io.*;
 import javax.net.ssl.*;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 
 public class Client
 {
-    public static void main(String[] args) 
+
+    Socket sock;
+    ObjectOutputStream oos;
+    ObjectInputStream ois;
+    
+    public Client()
     {
         try
         {
-            Socket sock = new Socket("localhost",9999);
-            ObjectOutputStream pr = new ObjectOutputStream(sock.getOutputStream());
-            System.out.print("Enter Something : ");
-            InputStreamReader rd = new InputStreamReader(System.in);
-            BufferedReader ed = new BufferedReader(rd);
-            String temp = ed.readLine();
-            pr.writeObject(new Message(temp, temp, temp));
-            ObjectInputStream gt = new ObjectInputStream(sock.getInputStream());
-            Message tm = (Message) gt.readObject();
-            System.out.print(tm.getText());
+            sock = new Socket("localhost",9999);
+            oos = new ObjectOutputStream(sock.getOutputStream());
+            ois = new ObjectInputStream(sock.getInputStream());
         }
-        catch(Exception ex)
+        catch (Exception e)
         {
-
+            System.out.println("Something went wrong when creating Client");
         }
+    }
+
+    public void sendMessage(Message m) throws IOException
+    {
+        oos.writeObject(m);
+    }
+
+    public Message getMessage() throws ClassNotFoundException, IOException
+    {
+        return (Message) ois.readObject();
+    }
+
+    public static void main(String[] args) throws IOException, ClassNotFoundException 
+    {
+        Client c = new Client();
+        System.out.print("Enter Something : ");
+        InputStreamReader rd = new InputStreamReader(System.in);
+        BufferedReader ed = new BufferedReader(rd);
+        String temp = ed.readLine();
+        c.sendMessage(new Message(temp, temp, temp));
+        Message tm = c.getMessage();
+        System.out.print(tm.getText());
     }
 }
 /*try {
