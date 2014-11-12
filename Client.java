@@ -1,9 +1,15 @@
 import java.io.*;
+import javax.net.ssl.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
 public class Client
 {
+
     String userID;
     Socket sock;
     ObjectOutputStream oos;
@@ -21,14 +27,17 @@ public class Client
         {
             System.out.println("Something went wrong when creating Client");
         }
+        new ServerListener().start();
     }
 
     public boolean authenticate(String userID, String pass)
     {   
         //true for now, will have to check userId and pass true
+        System.out.println("AUTHENTICATING");
         this.userID = userID;
         return true;
     }
+    
 
     public void sendMessage(String title, String text) throws IOException
     {
@@ -44,23 +53,20 @@ public class Client
 
     public ArrayList <Message> getMessages() throws ClassNotFoundException, IOException
     {
+    	ArrayList<Message> messages= new ArrayList<Message>();
         //to be changed to return all messages from server
         //Message m = (Message) ois.readObject();
-        Message m = new Message(userID, "text","text");
-        ArrayList<Message> messages= new ArrayList<Message>();
-        messages.add(m);
-        m = (Message) ois.readObject();
-        if (m != null)
-        {
-            System.out.println("NOT NULL< ADD ");
-            messages.add(m);
-        }
+        //Message m = new Message(userID, "text","text");
+	        
+	    messages.add(new Message("no","no", "no"));    	
         return messages;
     }
 
     public static void main(String[] args) throws IOException, ClassNotFoundException 
     {
+    	
         Client c = new Client();
+        
         while(true){
         System.out.print("Enter Something : ");
         InputStreamReader rd = new InputStreamReader(System.in);
@@ -70,16 +76,27 @@ public class Client
         ArrayList <Message> tm = c.getMessages();
         System.out.print(tm.get(0).getText());
         }
+        
     }
     
     
     
     public class ServerListener extends Thread{
-    	
-    	
+    	Message msg;
+    	public void run(){
+    		while(true){
+    			try{
+    				try{
+    					msg = (Message)ois.readObject();
+    				}catch(IOException e){System.out.println("Error reading object from ois");}
+    				System.out.println(">>>>>>>>>>>>>>>>"+msg.getText());
+    			}catch(ClassNotFoundException e2){}
+    		}
+    		
     	}
-    	
+    }	
     }
+
 
 /*try {
 SSLSocketFactory f =
