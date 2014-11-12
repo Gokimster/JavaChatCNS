@@ -3,6 +3,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class ClientGUI extends JFrame implements ActionListener 
@@ -11,7 +12,10 @@ public class ClientGUI extends JFrame implements ActionListener
   JTextField userID, pass, title, authorSearch, titleSearch;
   JTextArea message;
   JButton sendButton, searchButton;
+  //to be removed after linking with client server
   MessageManager mm;
+
+  Client client;
   JPanel messageCreationPanel, messageArchivePanel, messageSearchPanel;
   JTabbedPane tabPane;
   JScrollPane panelScroll, searchScroll;
@@ -23,7 +27,10 @@ public class ClientGUI extends JFrame implements ActionListener
 
   public void init()
   {
+    //message manager to be removed
     mm= new MessageManager();
+
+    client = new Client();
     initMessageCreationPanel();
     initMessageSearchPanel();
     initMessageArchivePanel();
@@ -64,7 +71,12 @@ public class ClientGUI extends JFrame implements ActionListener
     sendButton.addActionListener(new ActionListener() {  
             public void actionPerformed(ActionEvent e)
             {
-                sendButtonAction();
+            	try{
+            		sendButtonAction();
+            	}catch(Exception ex)
+            	{
+            		System.out.println("Message coud not be sent");
+            	}
             }});
     botPanel.add(sendButton);
     messageCreationPanel.add(botPanel, BorderLayout.SOUTH);
@@ -190,11 +202,11 @@ public class ClientGUI extends JFrame implements ActionListener
   }
 
   //sends a message and refreshes the archive panel to show the message
-  private void sendButtonAction()
+  private void sendButtonAction() throws IOException
   {
     if (checkMessageBoxesFilled() == true)
     {
-      mm.addMessage(userID.getText(), title.getText(), message.getText());
+      client.sendMessage(new Message(userID.getText(), title.getText(), message.getText()));
     }
     refreshArchivePanel();
   }
