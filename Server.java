@@ -15,10 +15,12 @@ public class Server {
 	private int port;
 	// should the server be listening or not
 	private boolean active;
+	private ArrayList<Message> messageList;
 
 	public Server(int portNO) {
 		port = portNO;
 		ct = new ArrayList<ClientThread>();
+		messageList=new ArrayList<Message>();
 	}
 
 	public void start() {
@@ -36,9 +38,8 @@ public class Server {
 				if(active==false)
 					break;
 				Socket socket = ss.accept(); // accept connection
-				// if I was asked to stop
-				//
 				ClientThread t = new ClientThread(socket); // make a thread for
+				
 				// the client
 				ct.add(t); // save it in the ArrayList of the client threads
 				t.start(); // initialize the thread connectin
@@ -76,11 +77,22 @@ public class Server {
 
 	}
 
+	
 		public void removeClient(ClientThread toClose){
 			if(ct.contains(toClose)){
 				System.out.println("In remove client");
 				ct.remove(toClose);
 			}
+		}
+		private int sendToClient(ArrayList<Message> list,ClientThread client){
+			
+			if(client.sendMessage(null, messageList)==2){
+				System.out.println("message list send successfully");
+				return 1;
+			}
+			System.out.println("Unsuccessful message send");
+			return 0;
+			
 		}
 		
 	public synchronized void distributeMessage(Message msg) {
@@ -92,7 +104,7 @@ public class Server {
 			System.out.println("sending message to peers");
 			//try to send them a meessage
 			if(c==null) continue;
-			if ((c.sendMessage(msg)) == 0) {
+			if ((c.sendMessage(msg,null)) == 0) {
 				System.out.println("The user has disconnected");
 			}
 		}
@@ -216,7 +228,8 @@ class ClientThread extends Thread {
 		
 	}
 
-	public int sendMessage(Message msg) {
+	public int sendMessage(Message msg,ArrayList<Message> messageList) {
+		if(msg!=null){
 		if (socket.isClosed()==true) {
 			destructor();
 			System.out.println("IT IS CLOSED FIX IT!!!");
@@ -231,6 +244,12 @@ class ClientThread extends Thread {
 
 		return 1;
 	}
+	}else if(messageList!=null) {
+		try{
+		out.writeObject(messageList);
+		return 2;
+	}catch(IOException e){System.out.println("problem sending arraylist to client");}
+	}  return 0;
 	}
 
 }
