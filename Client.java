@@ -25,7 +25,9 @@ public class Client
         {
             System.out.println("Something went wrong when creating Client");
         }
+        new ServerListener().start();
     }
+    
 
     public void sendMessage(Message m) throws IOException
     {
@@ -40,26 +42,39 @@ public class Client
 
     public static void main(String[] args) throws IOException, ClassNotFoundException 
     {
+    	
         Client c = new Client();
+        
         while(true){
         System.out.print("Enter Something : ");
         InputStreamReader rd = new InputStreamReader(System.in);
         BufferedReader ed = new BufferedReader(rd);
         String temp = ed.readLine();
         c.sendMessage(new Message(temp, temp, temp));
-        Message tm = c.getMessage();
+        //System.out.println(">>>>>>>>>>>"+tm.getText());
         //System.out.print(tm.getText());
         }
+        
     }
     
     
     
     public class ServerListener extends Thread{
-    	
-    	
+    	Message msg;
+    	public void run(){
+    		while(true){
+    			try{
+    				try{
+    					msg = (Message)ois.readObject();
+    				}catch(IOException e){System.out.println("Error reading object from ois");}
+    				System.out.println(">>>>>>>>>>>>>>>>"+msg.getText());
+    			}catch(ClassNotFoundException e2){}
+    		}
+    		
     	}
-    	
+    }	
     }
+
 
 /*try {
 SSLSocketFactory f =
