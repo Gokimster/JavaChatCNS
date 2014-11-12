@@ -7,28 +7,6 @@ import java.net.Socket;
 
 public class Client
 {
-<<<<<<< HEAD
- public static void main(String[] args)
- {
- try
- {
- Socket sock = new Socket("localhost",9999);
- ObjectOutputStream pr = new ObjectOutputStream(sock.getOutputStream());
- System.out.print("Enter Something : ");
- InputStreamReader rd = new InputStreamReader(System.in);
- BufferedReader ed = new BufferedReader(rd);
- String temp = ed.readLine();
- pr.writeObject(new Message(temp, temp, temp));
- ObjectInputStream gt = new ObjectInputStream(sock.getInputStream());
- Message tm = (Message) gt.readObject();
- System.out.print(tm.getText());
- }
- catch(Exception ex)
- {
-
- }
- }
-=======
     public static void main(String[] args) 
     {
         try
@@ -49,7 +27,6 @@ public class Client
 
         }
     }
->>>>>>> origin/master
 }
 /*try {
 SSLSocketFactory f =
@@ -74,7 +51,3 @@ SSLContext sc = SSLContext.getInstance("SSLv3");
 sc.init(null, tmf.getTrustManagers(), null);
 SSLSocketFactory f = sc.getSocketFactory();
 */
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
