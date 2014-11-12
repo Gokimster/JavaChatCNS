@@ -33,10 +33,11 @@ public class Server {
 				// to be removed in later versions
 				System.out.println("Server waiting for Clients on port " + port
 						+ ".");
-				if(!active) break;
+				if(active==false)
+					break;
 				Socket socket = ss.accept(); // accept connection
 				// if I was asked to stop
-				System.out.println("client added to list");
+				//
 				ClientThread t = new ClientThread(socket); // make a thread for
 				// the client
 				ct.add(t); // save it in the ArrayList of the client threads
@@ -44,7 +45,27 @@ public class Server {
 			}
 			// If the server has to stop, all the threads and in/out streams
 			// have to be closed.
-			
+			try {
+				System.out.println("attempt to close everything");
+				ss.close(); // close the server socket
+				for (int i = 0; i < ct.size(); ++i) { // go thtough the whole
+					// list of clients
+					ClientThread tc = ct.get(i);
+					// try to close each of them
+					try {
+						tc.in.close();
+						tc.out.close();
+						tc.socket.close();
+					} catch (IOException ioE) {
+						// not much I can do
+					}
+				}
+				// in case something doesnt want to close
+			} catch (Exception e) {
+				System.out
+						.println("1 Problem with the closing of the threads and the in/out streams "
+								+ e);
+			}
 		}
 		// something went wrong
 		catch (IOException e) {
@@ -54,40 +75,15 @@ public class Server {
 		System.out.println("reset");
 
 	}
-	
-	private void stopServer(ServerSocket ss){
-		try {
-			System.out.println("attempt to close everything");
-			ss.close(); // close the server socket
-			for (int i = 0; i < ct.size(); ++i) { // go thtough the whole
-				// list of clients
-				ClientThread tc = ct.get(i);
-				// try to close each of them
-				try {
-					tc.in.close();
-					tc.out.close();
-					tc.socket.close();
-				} catch (IOException ioE) {
-					// not much I can do
-				}
-			}
-			// in case something doesnt want to close
-		} catch (Exception e) {
-			System.out
-					.println("1 Problem with the closing of the threads and the in/out streams "
-							+ e);
-		}
-	}
 
 	public synchronized void distributeMessage(Message msg) {
 		String message_text = msg.getText();
 		String author = msg.getAuthor();
 		System.out.println(author + ">>>"+message_text);
-		for (int i = ct.size()-1; i > -1; i--) {
+		for (int i = ct.size()-1; i >= 0; --i) {
 			ClientThread current = ct.get(i);
 			//try to send them a meessage
-			int sent = current.sendMessage(msg);
-			if (sent == 0) {
+			if ((current.sendMessage(msg)) == 0) {
 				System.out.println("The user has disconnected");
 			}
 		}
@@ -129,7 +125,10 @@ class ClientThread extends Thread {
 	public Socket socket;
 	ObjectInputStream in;
 	ObjectOutputStream out;
-	
+	//this is a problem cause message is saved and afterwards when it keeps looping it 
+	//wont terminate cause it has something to loop over; 
+	//dunno how to do it tho cause kinda lost and tired.
+	Message message;
 	boolean isActive;
 
 	public ClientThread(Socket sock) {
@@ -147,10 +146,10 @@ class ClientThread extends Thread {
 			System.out
 					.println("There was an error creating the input/output stream"
 							+ e.toString());
-		}
-		active();// catch (ClassNotFoundException e1) {
+		} // catch (ClassNotFoundException e1) {
 			// System.out.println("Problem with the sender");
 			// }
+		active();
 
 	}
 
@@ -159,26 +158,26 @@ class ClientThread extends Thread {
 			System.out.println("In Thread's active while loop");
 			try {
 				System.out.println("reading message from thread");
-				Message message = (Message) in.readObject();
-				System.out.println("propagading message");
-				distributeMessage(message);
+				message = (Message) in.readObject();
 			} catch (IOException e) {
-				System.out.println("There was a problem reading the messaage object "
+				System.out
+						.println("There was a problem reading the messaage object "
 								+ e);
 			} catch (ClassNotFoundException e1) {
 				// I don't know what to do in this case tbf
 			}
-			
-			
+			System.out.println("propagading message");	
+			distributeMessage(message);	
 			// String message_text = message.getText();
-			// System.out.println(message.getAuthor()+ ":" + message_text);
+			// System.out.println(message.getAuthor()+ ":" + message_text)
+			isActive =false;
 		}
-		closeConnections();
 		
-	
+	//closeConnections();	
 	}
 
 	private void closeConnections() {
+		System.out.println("CLOSING CONNECTIONS IN THREAD closeconnections()");
 		try {
 			if (in != null)
 				in.close();
@@ -200,19 +199,22 @@ class ClientThread extends Thread {
 	}
 
 	public int sendMessage(Message msg) {
-		if (!socket.isConnected()) {
+		
+		if (socket.isConnected()==false) {
+			
+			System.out.println("IT IS CLOSED FIX IT!!!");
 			return 0;
-		}
+		}else{
 		try {
 			System.out.println("trying to send a message");
 			out.writeObject(msg);
 		} catch (IOException e) {
-			System.out.println("error sending message"+ e);
+			System.out.println("error sending message"+e);
 		}
 
 		return 1;
 	}
-
+	}
 
 }
 }
