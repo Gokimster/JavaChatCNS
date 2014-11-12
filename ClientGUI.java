@@ -171,16 +171,20 @@ public class ClientGUI extends JFrame implements ActionListener
     northPanel.add(new JLabel("At: " + m.getTimestamp()));
     northPanel.add(new JLabel(m.getTitle()+":"));
     if (changeColor)
-    {
       northPanel.setBackground(Color.WHITE);
-    }
+    else
+      northPanel.setBackground(new Color(134,187,255, 255));
     main.add(northPanel, BorderLayout.NORTH);
-    JPanel midPanel = new JPanel(new GridLayout(1,1));
-    midPanel.add(new JLabel(m.getText()));
+    JTextArea midPanel = new JTextArea(m.getText());
+    midPanel.setEditable(false);
+    midPanel.setBorder(null);
+    midPanel.setLineWrap(true);
+    midPanel.setWrapStyleWord(true);
+    midPanel.setFocusable(false);
     if (changeColor)
-    {
      midPanel.setBackground(Color.WHITE);
-    }
+    else 
+      midPanel.setBackground(new Color(134,187,255, 255));
     main.add(midPanel);
     return main;
   }
@@ -190,7 +194,6 @@ public class ClientGUI extends JFrame implements ActionListener
   {
     if (checkMessageBoxesFilled() == true)
     {
-      System.out.println(message.getText());
       mm.addMessage(userID.getText(), title.getText(), message.getText());
     }
     refreshArchivePanel();
