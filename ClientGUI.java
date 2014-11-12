@@ -1,4 +1,5 @@
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,8 +12,6 @@ public class ClientGUI extends JFrame implements ActionListener
   JTextField userID, pass, title, authorSearch, titleSearch;
   JTextArea message;
   JButton sendButton, searchButton, loginButton;
-  //to be removed after linking with client server
-  MessageManager mm;
 
   Client client;
   JPanel messageCreationPanel, messageArchivePanel, messageSearchPanel, loginPanel;
@@ -26,8 +25,6 @@ public class ClientGUI extends JFrame implements ActionListener
 
   public void init()
   {
-    //message manager to be removed
-    mm= new MessageManager();
     client = new Client();
     initLoginPanel();
     setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -36,8 +33,9 @@ public class ClientGUI extends JFrame implements ActionListener
   }
 
   //init the tab panels- after login is authenticated
-  public void initTabs()
+  public void initTabs() throws ClassNotFoundException, IOException
   {
+    System.out.println("INITIAISING TABS");
     remove(loginPanel);
     initMessageCreationPanel();
     initMessageSearchPanel();
@@ -67,7 +65,11 @@ public class ClientGUI extends JFrame implements ActionListener
     loginButton.addActionListener(new ActionListener() {  
             public void actionPerformed(ActionEvent e)
             {
-                loginButtonAction();
+                try {
+					loginButtonAction();
+				} catch (ClassNotFoundException | IOException e1) {
+					System.out.println("Could not do login action");
+				}
               
             }});
     JPanel botPanel = new JPanel(new GridLayout(1,1));
@@ -111,10 +113,10 @@ public class ClientGUI extends JFrame implements ActionListener
   }
 
   //initiate the message archive panel
-  private void initMessageArchivePanel()
+  private void initMessageArchivePanel() throws ClassNotFoundException, IOException
   {
     messageArchivePanel = new JPanel(new GridLayout(0,1));
-    ArrayList <Message> messages = mm.getMessages();
+    ArrayList <Message> messages = (ArrayList <Message>) client.getMessages();
     for (int i = messages.size() -1 ; i >= 0; i--)
     {
       JPanel oneMessage;
@@ -150,25 +152,29 @@ public class ClientGUI extends JFrame implements ActionListener
     searchButton.addActionListener(new ActionListener() {  
             public void actionPerformed(ActionEvent e)
             {
-                searchButtonAction();
+                try {
+        					searchButtonAction();
+        				} catch (ClassNotFoundException | IOException e1) {
+        					System.out.println("Could noy search for messages");
+        				}
             }});
     botPanel.add(searchButton);
     messageSearchPanel.add(botPanel, BorderLayout.SOUTH);
   }
 
   //refreshes the archive panel with new messages
-  private void refreshArchivePanel()
+  private void refreshArchivePanel() throws ClassNotFoundException, IOException
   {
     tabPane.remove(panelScroll);
     initMessageArchivePanel();
     tabPane.add("Message Archive",panelScroll);
   }
 
-  private int refreshSearchPanel()
+  private int refreshSearchPanel() throws ClassNotFoundException, IOException
   {
     messageSearchPanel.remove(searchScroll);
     JPanel midPanel = new JPanel(new GridLayout(0,1));
-    ArrayList <Message> messages = mm.getMessages();
+    ArrayList <Message> messages = client.getMessages();
     int counter = 0;
     for (int i = messages.size() -1 ; i >= 0; i--)
     {
@@ -229,19 +235,21 @@ public class ClientGUI extends JFrame implements ActionListener
     return main;
   }
 
-  private void loginButtonAction()
+  private void loginButtonAction() throws ClassNotFoundException, IOException
   {
     if (checkLoginBoxesFilled())
     {
+      System.out.println("CHECKED BOXES");
       if (client.authenticate(userID.getText(), pass.getText()))
       {
+        System.out.println("AUTHENTICATION DONE");
         initTabs();
       }
     }
   }
 
   //sends a message and refreshes the archive panel to show the message
-  private void sendButtonAction() throws IOException
+  private void sendButtonAction() throws IOException, ClassNotFoundException
   {
     if (checkMessageBoxesFilled() == true)
     {
@@ -250,7 +258,7 @@ public class ClientGUI extends JFrame implements ActionListener
     refreshArchivePanel();
   }
 
-  private void searchButtonAction()
+  private void searchButtonAction() throws ClassNotFoundException, IOException
   {
     if (checkSearchBoxesFilled())
     {

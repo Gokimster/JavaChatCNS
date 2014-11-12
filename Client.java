@@ -1,8 +1,6 @@
 import java.io.*;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class Client
 {
@@ -44,6 +42,22 @@ public class Client
         return m;
     }
 
+    public ArrayList <Message> getMessages() throws ClassNotFoundException, IOException
+    {
+        //to be changed to return all messages from server
+        //Message m = (Message) ois.readObject();
+        Message m = new Message(userID, "text","text");
+        ArrayList<Message> messages= new ArrayList<Message>();
+        messages.add(m);
+        m = (Message) ois.readObject();
+        if (m != null)
+        {
+            System.out.println("NOT NULL< ADD ");
+            messages.add(m);
+        }
+        return messages;
+    }
+
     public static void main(String[] args) throws IOException, ClassNotFoundException 
     {
         Client c = new Client();
@@ -53,8 +67,8 @@ public class Client
         BufferedReader ed = new BufferedReader(rd);
         String temp = ed.readLine();
         c.sendMessage(temp, temp);
-        Message tm = c.getMessage();
-        //System.out.print(tm.getText());
+        ArrayList <Message> tm = c.getMessages();
+        System.out.print(tm.get(0).getText());
         }
     }
     
