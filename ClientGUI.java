@@ -1,5 +1,4 @@
 import javax.swing.*;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,12 +10,12 @@ public class ClientGUI extends JFrame implements ActionListener
 
   JTextField userID, pass, title, authorSearch, titleSearch;
   JTextArea message;
-  JButton sendButton, searchButton;
+  JButton sendButton, searchButton, loginButton;
   //to be removed after linking with client server
   MessageManager mm;
 
   Client client;
-  JPanel messageCreationPanel, messageArchivePanel, messageSearchPanel;
+  JPanel messageCreationPanel, messageArchivePanel, messageSearchPanel, loginPanel;
   JTabbedPane tabPane;
   JScrollPane panelScroll, searchScroll;
 
@@ -29,8 +28,17 @@ public class ClientGUI extends JFrame implements ActionListener
   {
     //message manager to be removed
     mm= new MessageManager();
-
     client = new Client();
+    initLoginPanel();
+    setDefaultCloseOperation(EXIT_ON_CLOSE);
+    setBounds(500, 200, 500, 100);
+    setVisible(true);
+  }
+
+  //init the tab panels- after login is authenticated
+  public void initTabs()
+  {
+    remove(loginPanel);
     initMessageCreationPanel();
     initMessageSearchPanel();
     initMessageArchivePanel();
@@ -39,25 +47,45 @@ public class ClientGUI extends JFrame implements ActionListener
     tabPane.add("Search for Messages", messageSearchPanel);
     tabPane.add("Message Archive", panelScroll);
     add(tabPane);
-    setDefaultCloseOperation(EXIT_ON_CLOSE);
     setBounds(500, 200, 500, 500);
-    setVisible(true);
+    revalidate();
+    repaint();
   }
+
+  private void initLoginPanel()
+  {
+    loginPanel = new JPanel(new BorderLayout());
+    JPanel topPanel = new JPanel(new GridLayout(2,2));
+    userID = new JTextField();
+    pass = new JTextField();
+    topPanel.add(new JLabel("UserID: "));
+    topPanel.add(userID);
+    topPanel.add(new JLabel("Password: "));
+    topPanel.add(pass);
+    loginPanel.add(topPanel, BorderLayout.CENTER);
+    loginButton = new JButton("Login");
+    loginButton.addActionListener(new ActionListener() {  
+            public void actionPerformed(ActionEvent e)
+            {
+                loginButtonAction();
+              
+            }});
+    JPanel botPanel = new JPanel(new GridLayout(1,1));
+    botPanel.add(loginButton);
+    loginPanel.add(botPanel, BorderLayout.SOUTH);
+    add(loginPanel);
+  }
+
 
   //initiate the message creation panel
   private void initMessageCreationPanel()
   {
     messageCreationPanel = new JPanel(new BorderLayout());
-    JPanel topPanel = new JPanel(new GridLayout(3, 2));
-    userID = new JTextField();
-    pass = new JTextField();
+    JPanel topPanel = new JPanel(new GridLayout(3, 1));
     title = new JTextField();
-    topPanel.add(new JLabel("UserID: "));
-    topPanel.add(userID);
-    topPanel.add(new JLabel("Password: "));
-    topPanel.add(pass);
     topPanel.add(new JLabel("Message Title: "));
     topPanel.add(title);
+    topPanel.add(new JLabel("Message: "));
     messageCreationPanel.add(topPanel, BorderLayout.NORTH);
 
     JPanel midPanel = new JPanel (new GridLayout(1,1));
@@ -201,12 +229,24 @@ public class ClientGUI extends JFrame implements ActionListener
     return main;
   }
 
+  private void loginButtonAction()
+  {
+    if (checkLoginBoxesFilled())
+    {
+      if (client.authenticate(userID.getText(), pass.getText()))
+      {
+    	  System.out.println("TRUE");
+        initTabs();
+      }
+    }
+  }
+
   //sends a message and refreshes the archive panel to show the message
   private void sendButtonAction() throws IOException
   {
     if (checkMessageBoxesFilled() == true)
     {
-      client.sendMessage(new Message(userID.getText(), title.getText(), message.getText()));
+      client.sendMessage(title.getText(), message.getText());
     }
     refreshArchivePanel();
   }
@@ -220,6 +260,22 @@ public class ClientGUI extends JFrame implements ActionListener
         showErrorMessage("No messages found", "We could not find a message with which fits the author and title provided!");
       }
     }
+  }
+
+  public boolean checkLoginBoxesFilled()
+  {
+    if (userID.getText().equals(""))
+    {
+      showErrorMessage("User ID Missing", "Please enter your UserID!");
+      return false;
+    }
+    else 
+      if (pass.getText().equals(""))
+      {
+       showErrorMessage("Password Missing", "Please enter your Password!");
+       return false;
+      }
+    return true;
   }
 
   //checks if both of the boxes in the search tab are empty
@@ -236,29 +292,17 @@ public class ClientGUI extends JFrame implements ActionListener
   //checks if any of the boxes in the message creation tab are empty, returns false if so
   public boolean checkMessageBoxesFilled()
   {
-    if (userID.getText().equals(""))
+    if (title.getText().equals(""))
     {
-      showErrorMessage("User ID Missing", "Please enter your UserID!");
+      showErrorMessage("Message Title Missing", "Please enter a title for your message!");
       return false;
     }
-    else 
-      if (pass.getText().equals(""))
+    else
+      if (message.getText().equals(""))
       {
-       showErrorMessage("Password Missing", "Please enter your Password!");
-       return false;
+        showErrorMessage("Message Empty", "Your message is empty, you need to write a message to be able to send it!");
+        return false; 
       }
-      else
-        if (title.getText().equals(""))
-        {
-          showErrorMessage("Message Title Missing", "Please enter a title for your message!");
-          return false;
-        }
-        else
-          if (message.getText().equals(""))
-          {
-            showErrorMessage("Message Empty", "Your message is empty, you need to write a message to be able to send it!");
-            return false; 
-          }
     return true; 
   }
 

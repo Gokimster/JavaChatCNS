@@ -1,14 +1,12 @@
 import java.io.*;
-import javax.net.ssl.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.net.Socket;
 
 public class Client
 {
-
+    String userID;
     Socket sock;
     ObjectOutputStream oos;
     ObjectInputStream ois;
@@ -27,8 +25,17 @@ public class Client
         }
     }
 
-    public void sendMessage(Message m) throws IOException
+    public boolean authenticate(String userID, String pass)
+    {   
+        //true for now, will have to check userId and pass true
+        System.out.println("AUTHENTICATING");
+        this.userID = userID;
+        return true;
+    }
+
+    public void sendMessage(String title, String text) throws IOException
     {
+        Message m = new Message(userID, title, text);
         oos.writeObject(m);
     }
 
@@ -46,7 +53,7 @@ public class Client
         InputStreamReader rd = new InputStreamReader(System.in);
         BufferedReader ed = new BufferedReader(rd);
         String temp = ed.readLine();
-        c.sendMessage(new Message(temp, temp, temp));
+        c.sendMessage(temp, temp);
         Message tm = c.getMessage();
         //System.out.print(tm.getText());
         }
