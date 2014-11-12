@@ -137,7 +137,7 @@ class ClientThread extends Thread {
 	//this is a problem cause message is saved and afterwards when it keeps looping it 
 	//wont terminate cause it has something to loop over; 
 	//dunno how to do it tho cause kinda lost and tired.
-	Message message;
+	
 	boolean isActive;
 
 	public ClientThread(Socket sock) {
@@ -162,20 +162,25 @@ class ClientThread extends Thread {
 
 	public void run() {
 		while (isActive) {
+			Message message;
 			System.out.println("In Thread's active while loop");
 			try {
 				System.out.println("reading message from thread");
-				message = (Message) in.readObject();
+				 message = (Message) in.readObject();
+				 distributeMessage(message);
 			} catch (IOException e) {
 				System.out
 						.println("There was a problem reading the messaage object "
 								+ e);
+				destructor();
 			} catch (ClassNotFoundException e1) {}
-			System.out.println("propagading message");	
-			distributeMessage(message);	
+			System.out.println("propagading message");
+			System.out.println("checking for null messages");
+				
 			// String message_text = message.getText();
 			// System.out.println(message.getAuthor()+ ":" + message_text)
 			//isActive =false;
+			
 		}
 		
 	closeConnections();	
@@ -204,11 +209,11 @@ class ClientThread extends Thread {
 	}
 	
 	public void destructor(){
-		if(socket.isClosed()==true){
+		
 			isActive = false;
 			System.out.println("removing clinet");
 			removeClient(this);
-		}
+		
 	}
 
 	public int sendMessage(Message msg) {
