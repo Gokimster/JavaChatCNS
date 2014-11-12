@@ -28,7 +28,6 @@ public class Client
     public boolean authenticate(String userID, String pass)
     {   
         //true for now, will have to check userId and pass true
-        System.out.println("AUTHENTICATING");
         this.userID = userID;
         return true;
     }

@@ -235,7 +235,6 @@ public class ClientGUI extends JFrame implements ActionListener
     {
       if (client.authenticate(userID.getText(), pass.getText()))
       {
-    	  System.out.println("TRUE");
         initTabs();
       }
     }
