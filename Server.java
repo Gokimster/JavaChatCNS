@@ -21,7 +21,7 @@ public class Server {
 		ct = new ArrayList<ClientThread>();
 	}
 
-	public void initialize() {
+	public void start() {
 		active = true;
 		try {
 			// the socket used by the server
@@ -76,18 +76,27 @@ public class Server {
 
 	}
 
+		public void removeClient(ClientThread toClose){
+			if(ct.contains(toClose)){
+				System.out.println("In remove client");
+				ct.remove(toClose);
+			}
+		}
+		
 	public synchronized void distributeMessage(Message msg) {
 		String message_text = msg.getText();
 		String author = msg.getAuthor();
 		System.out.println(author + ">>>"+message_text);
-		for (int i = ct.size()-1; i >= 0; --i) {
-			ClientThread current = ct.get(i);
+		if(ct.size()>0){
+		for (ClientThread c : ct){
+			System.out.println("sending message to peers");
 			//try to send them a meessage
-			if ((current.sendMessage(msg)) == 0) {
+			if(c==null) continue;
+			if ((c.sendMessage(msg)) == 0) {
 				System.out.println("The user has disconnected");
 			}
 		}
-
+		}
 	}
 
 	/*for(int i = 0; i < al.size(); ++i) {
@@ -102,7 +111,7 @@ public class Server {
 		int portnumber = 9999;
 		
 		Server server = new Server (portnumber);
-		server.initialize();
+		server.start();
 		/*
 		 * byte[] buf = new byte[1024]; try { SSLServerSocketFactory f =
 		 * (SSLServerSocketFactory)SSLServerSocketFactory.getDefault(); int port
@@ -143,16 +152,15 @@ class ClientThread extends Thread {
 			// author = ((Message) in.readObject()).getAuthor();
 			System.out.println("Thread IO win!!");
 		} catch (IOException e) {
-			System.out
-					.println("There was an error creating the input/output stream"
+			System.out.println("There was an error creating the input/output stream"
 							+ e.toString());
 		} // catch (ClassNotFoundException e1) {
 			// System.out.println("Problem with the sender");
 			// }
-		active();
+		//active();
 	}
 
-	public void active() {
+	public void run() {
 		while (isActive) {
 			System.out.println("In Thread's active while loop");
 			try {
@@ -162,17 +170,15 @@ class ClientThread extends Thread {
 				System.out
 						.println("There was a problem reading the messaage object "
 								+ e);
-			} catch (ClassNotFoundException e1) {
-				// I don't know what to do in this case tbf
-			}
+			} catch (ClassNotFoundException e1) {}
 			System.out.println("propagading message");	
 			distributeMessage(message);	
 			// String message_text = message.getText();
 			// System.out.println(message.getAuthor()+ ":" + message_text)
-			isActive =false;
+			//isActive =false;
 		}
 		
-	//closeConnections();	
+	closeConnections();	
 	}
 
 	private void closeConnections() {
@@ -196,10 +202,18 @@ class ClientThread extends Thread {
 			System.out.println("Error closing the socket" + e2);
 		}
 	}
+	
+	public void destructor(){
+		if(socket.isClosed()==true){
+			isActive = false;
+			System.out.println("removing clinet");
+			removeClient(this);
+		}
+	}
 
 	public int sendMessage(Message msg) {
-		if (socket.isConnected()==false) {
-			
+		if (socket.isClosed()==true) {
+			destructor();
 			System.out.println("IT IS CLOSED FIX IT!!!");
 			return 0;
 		}else{

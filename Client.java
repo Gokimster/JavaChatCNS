@@ -34,21 +34,33 @@ public class Client
 
     public Message getMessage() throws ClassNotFoundException, IOException
     {
-        return (Message) ois.readObject();
+        Message m = (Message) ois.readObject();
+        return m;
     }
 
     public static void main(String[] args) throws IOException, ClassNotFoundException 
     {
         Client c = new Client();
+        while(true){
         System.out.print("Enter Something : ");
         InputStreamReader rd = new InputStreamReader(System.in);
         BufferedReader ed = new BufferedReader(rd);
         String temp = ed.readLine();
         c.sendMessage(new Message(temp, temp, temp));
         Message tm = c.getMessage();
-        System.out.print(tm.getText());
+        //System.out.print(tm.getText());
+        }
     }
-}
+    
+    
+    
+    public class ServerListener extends Thread{
+    	
+    	
+    	}
+    	
+    }
+
 /*try {
 SSLSocketFactory f =
 (SSLSocketFactory)SSLSocketFactory.getDefault();
