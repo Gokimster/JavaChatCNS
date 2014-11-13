@@ -34,7 +34,7 @@ public class Client
         {
             //init SSL socket
             SSLSocketFactory sf = (SSLSocketFactory)SSLSocketFactory.getDefault();
-            sock = (SSLSocket)sf.createSocket("localhost", 999);
+            sock = (SSLSocket)sf.createSocket("localhost", 9999);
             sock.setEnabledCipherSuites(sock.getSupportedCipherSuites());
 
             //init object input and outputstreams for socket
@@ -50,7 +50,7 @@ public class Client
         gotMessageArray = false;
         newMessage = null;
         messages = new ArrayList<Message>();
-        //new ServerListener().start();new ServerListener().start()
+        new ServerListener().start();
     }
 
     private void initKeystore() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException
@@ -98,27 +98,15 @@ public class Client
 
     public ArrayList <Message> getMessages() throws ClassNotFoundException, IOException
     {
-        //messages = new ArrayList<Message>();
         Message m = new Message("MESSAGE_LIST");
         oos.writeObject(m);
         while(!gotMessageArray)
         {
             System.out.print("");
         }
-        //copyList(messages, sl.getList());
         System.out.println(gotMessageArray +"     " +messages.size());
 
         return messages;
-    }
-
-    public void copyList(ArrayList<Message> to,ArrayList<Message> from )
-    {
-        to = new ArrayList<Message>();
-        for(Message c : from)
-        {
-            System.out.println("add message)");
-            to.add(c);
-        }
     }
 
 
