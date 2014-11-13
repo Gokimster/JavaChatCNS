@@ -2,6 +2,8 @@ import java.util.*;
 import java.io.Serializable;
 import java.text.*;
 
+import com.sun.javafx.iio.ImageFormatDescription.Signature;
+
 public class Message implements Serializable, Cloneable 
 {
   
