@@ -27,7 +27,10 @@ public class Server {
 		active = true;
 		try {
 			// the socket used by the server
-			ServerSocket ss = new ServerSocket(port);
+			SSLServerSocketFactory f =
+			           (SSLServerSocketFactory)SSLServerSocketFactory.getDefault();
+			SSLServerSocket s = (SSLServerSocket)f.createServerSocket(port);
+			s.setEnabledCipherSuites(s.getSupportedCipherSuites());
 			// infinite loop to wait for connections
 			while (active) {
 				System.out.println("server active loop");
@@ -37,8 +40,8 @@ public class Server {
 						+ ".");
 				if(active==false)
 					break;
-				Socket socket = ss.accept(); // accept connection
-				ClientThread t = new ClientThread(socket); // make a thread for
+				SSLSocket sock = (SSLSocket)s.accept(); // accept connection
+				ClientThread t = new ClientThread(sock); // make a thread for
 				
 				// the client
 				ct.add(t); // save it in the ArrayList of the client threads
@@ -49,7 +52,7 @@ public class Server {
 			// have to be closed.
 			try {
 				System.out.println("attempt to close everything");
-				ss.close(); // close the server socket
+				s.close(); // close the server socket
 				for (int i = 0; i < ct.size(); ++i) { // go thtough the whole
 					// list of clients
 					ClientThread tc = ct.get(i);
@@ -154,7 +157,7 @@ class ClientThread extends Thread {
 	
 	boolean isActive;
 
-	public ClientThread(Socket sock) {
+	public ClientThread(SSLSocket sock) {
 		isActive = true;
 		socket = sock;
 		System.out.println("New thread connected");
