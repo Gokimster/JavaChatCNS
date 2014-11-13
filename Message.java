@@ -26,6 +26,12 @@ public class Message implements Serializable
   	this.date = date;
   }
 
+  Message(String request)
+  {
+    this.text = request;
+    this.author = null;
+  }
+
   //returns the date and time in String format
   public String getTimestamp()
   {

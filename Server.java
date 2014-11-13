@@ -96,6 +96,7 @@ public class Server {
 		}
 		
 	public synchronized void distributeMessage(Message msg) {
+		messageList.add(msg);
 		String message_text = msg.getText();
 		String author = msg.getAuthor();
 		System.out.println(author + ">>>"+message_text);
@@ -163,6 +164,7 @@ class ClientThread extends Thread {
 			out = new ObjectOutputStream(sock.getOutputStream());
 			// author = ((Message) in.readObject()).getAuthor();
 			System.out.println("Thread IO win!!");
+			sendToClient(messageList, this);
 		} catch (IOException e) {
 			System.out.println("There was an error creating the input/output stream"
 							+ e.toString());
@@ -179,7 +181,16 @@ class ClientThread extends Thread {
 			try {
 				System.out.println("reading message from thread");
 				 message = (Message) in.readObject();
-				 distributeMessage(message);
+				 if (message.getAuthor() == null)
+				 {
+				 	if(message.getText().equals("MESSAGE_LIST"))
+				 	System.out.println(messageList.size());
+				 	sendToClient(messageList, this);
+				 }
+				 else
+				 {
+				 	distributeMessage(message);
+				 }
 			} catch (IOException e) {
 				System.out
 						.println("There was a problem reading the messaage object "

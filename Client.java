@@ -14,6 +14,9 @@ public class Client
     Socket sock;
     ObjectOutputStream oos;
     ObjectInputStream ois;
+    boolean gotMessage, gotMessageArray;
+    Message newMessage;
+    ArrayList<Message> messages;
     
     public Client()
     {
@@ -27,6 +30,10 @@ public class Client
         {
             System.out.println("Something went wrong when creating Client");
         }
+        gotMessage = false;
+        gotMessageArray = false;
+        newMessage = null;
+        messages = null;
         new ServerListener().start();
     }
 
@@ -47,19 +54,37 @@ public class Client
 
     public Message getMessage() throws ClassNotFoundException, IOException
     {
-        Message m = (Message) ois.readObject();
-        return m;
+        return newMessage;
+    }
+
+    public void resetRecievedMessages()
+    {
+        gotMessage = false;
+        gotMessageArray = false;
+        newMessage = null;
+        messages = null;
     }
 
     public ArrayList <Message> getMessages() throws ClassNotFoundException, IOException
     {
-    	ArrayList<Message> messages= new ArrayList<Message>();
-        //to be changed to return all messages from server
-        //Message m = (Message) ois.readObject();
-        //Message m = new Message(userID, "text","text");
-	        
-	    messages.add(new Message("no","no", "no"));    	
+        Message m = new Message("MESSAGE_LIST");
+        oos.writeObject(m);
+        while(!gotMessageArray)
+        {
+        }
+        System.out.println(messages.size());
         return messages;
+    }
+
+
+    public boolean hasNewMessage()
+    {
+        return gotMessage;
+    }
+
+    public boolean hasNewMessageArray()
+    {
+        return gotMessageArray;
     }
 
     public static void main(String[] args) throws IOException, ClassNotFoundException 
@@ -82,14 +107,26 @@ public class Client
     
     
     public class ServerListener extends Thread{
-    	Message msg;
+        Object obj;
     	public void run(){
     		while(true){
     			try{
+                    obj = null;
     				try{
-    					msg = (Message)ois.readObject();
+    					obj = (Object)ois.readObject();
     				}catch(IOException e){System.out.println("Error reading object from ois");}
-    				System.out.println(">>>>>>>>>>>>>>>>"+msg.getText());
+                    if (obj instanceof Message)
+                    {
+                        newMessage = (Message) obj;
+                        gotMessage = true;
+                        System.out.println("YES SINGLE MESSAGE");
+                    }
+                     if (obj instanceof ArrayList)
+                    {
+                        messages = (ArrayList<Message>) obj;
+                        gotMessageArray = true;
+                        System.out.println("YES MESSAGE");
+                    }
     			}catch(ClassNotFoundException e2){}
     		}
     		

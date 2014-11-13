@@ -12,7 +12,7 @@ public class ClientGUI extends JFrame implements ActionListener
   JTextField userID, pass, title, authorSearch, titleSearch;
   JTextArea message;
   JButton sendButton, searchButton, loginButton;
-
+  int messageNoInArchive;
   Client client;
   JPanel messageCreationPanel, messageArchivePanel, messageSearchPanel, loginPanel;
   JTabbedPane tabPane;
@@ -35,7 +35,7 @@ public class ClientGUI extends JFrame implements ActionListener
   //init the tab panels- after login is authenticated
   public void initTabs() throws ClassNotFoundException, IOException
   {
-    System.out.println("INITIAISING TABS");
+    new ClientListener().start();
     remove(loginPanel);
     initMessageCreationPanel();
     initMessageSearchPanel();
@@ -115,23 +115,57 @@ public class ClientGUI extends JFrame implements ActionListener
   //initiate the message archive panel
   private void initMessageArchivePanel() throws ClassNotFoundException, IOException
   {
+    messageNoInArchive = 0;
     messageArchivePanel = new JPanel(new GridLayout(0,1));
     ArrayList <Message> messages = (ArrayList <Message>) client.getMessages();
-    for (int i = messages.size() -1 ; i >= 0; i--)
+    if (!messages.isEmpty())
     {
-      JPanel oneMessage;
-      if (i % 2 == 0)
-      {
-        oneMessage = createMessagePanel(messages.get(i), true);
-      }
-      else 
-      {
-        oneMessage = createMessagePanel(messages.get(i), false);
-      }
-      messageArchivePanel.add(oneMessage);
+	    for (int i = 0 ; i < messages.size(); i++)
+	    {
+	      messageNoInArchive++;
+	      JPanel oneMessage;
+	      if (i % 2 == 0)
+	      {
+	        oneMessage = createMessagePanel(messages.get(i), true);
+	      }
+	      else 
+	      {
+	        oneMessage = createMessagePanel(messages.get(i), false);
+	      }
+	      messageArchivePanel.add(oneMessage, 0);
+	    }
     }
     panelScroll = new JScrollPane(messageArchivePanel);
   }
+
+
+  private void addMessageToArchive() throws ClassNotFoundException, IOException
+  {
+   // JPanel oneMessage = createMessagePanel(client.getMessage(), true)
+    JPanel oneMessage;
+     if (messageNoInArchive % 2 == 0)
+      {
+        oneMessage = createMessagePanel(client.getMessage(), true);
+      }
+      else 
+      {
+        oneMessage = createMessagePanel(client.getMessage(), false);
+      }
+    messageNoInArchive++;
+    messageArchivePanel.add(oneMessage, 0);
+  }
+
+  private void refreshArchivePanel() throws ClassNotFoundException, IOException
+  {    
+    tabPane.remove(panelScroll);
+    addMessageToArchive();
+    messageArchivePanel.revalidate();
+    messageArchivePanel.repaint();
+    panelScroll= new JScrollPane(messageArchivePanel);
+    tabPane.add("Message Archive",panelScroll);
+    System.out.println("done refresh");
+  }
+
 
   private void initMessageSearchPanel()
   {
@@ -163,22 +197,18 @@ public class ClientGUI extends JFrame implements ActionListener
   }
 
   //refreshes the archive panel with new messages
-  private void refreshArchivePanel() throws ClassNotFoundException, IOException
-  {
-    tabPane.remove(panelScroll);
-    initMessageArchivePanel();
-    tabPane.add("Message Archive",panelScroll);
-  }
-
   private int refreshSearchPanel() throws ClassNotFoundException, IOException
   {
     messageSearchPanel.remove(searchScroll);
     JPanel midPanel = new JPanel(new GridLayout(0,1));
     ArrayList <Message> messages = client.getMessages();
+    client.resetRecievedMessages();
     int counter = 0;
+    System.out.println(messages.size());
     for (int i = messages.size() -1 ; i >= 0; i--)
     {
       Message m = messages.get(i);
+      System.out.println(m.getAuthor());
       if (m.getAuthor().equals(authorSearch.getText()))
       {
         if ((titleSearch.getText().equals("")) || (m.getTitle().equals(titleSearch.getText())))
@@ -239,23 +269,22 @@ public class ClientGUI extends JFrame implements ActionListener
   {
     if (checkLoginBoxesFilled())
     {
-      System.out.println("CHECKED BOXES");
       if (client.authenticate(userID.getText(), pass.getText()))
       {
-        System.out.println("AUTHENTICATION DONE");
         initTabs();
       }
+      else
+        showErrorMessage("Authentication Failed", "Your user id and password don't match!");
     }
   }
 
-  //sends a message and refreshes the archive panel to show the message
+  //sends a message to the server
   private void sendButtonAction() throws IOException, ClassNotFoundException
   {
     if (checkMessageBoxesFilled() == true)
     {
       client.sendMessage(title.getText(), message.getText());
     }
-    refreshArchivePanel();
   }
 
   private void searchButtonAction() throws ClassNotFoundException, IOException
@@ -329,5 +358,25 @@ public class ClientGUI extends JFrame implements ActionListener
 	// TODO Auto-generated method stub
 		
   }
+
+  public class ClientListener extends Thread
+  {
+    public void run()
+    {
+      while(true)
+      {
+        if(client.hasNewMessage())
+        {
+          try {
+      			refreshArchivePanel();
+      			client.resetRecievedMessages();
+		    } catch (ClassNotFoundException | IOException e) {
+			System.out.println("Could not refresh panel");
+		  }
+        }
+      }
+      
+    }
+  } 
 
 }

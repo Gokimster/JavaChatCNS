@@ -57,3 +57,4 @@ Temporary Items
 /Server$ClientThread.class
 /Client$ServerListener.class
 /Client$ServerListen.class
+/ClientGUI$ClientListener.class
