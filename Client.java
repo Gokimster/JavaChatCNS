@@ -1,22 +1,27 @@
 import java.io.*;
+
 import javax.net.ssl.*;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 
 public class Client
 {
 
     String userID;
     Socket sock;
-    ObjectOutputStream oos;
-    ObjectInputStream ois;
-    boolean gotMessage, gotMessageArray;
+    public ObjectOutputStream oos;
+    public ObjectInputStream ois;
+    public boolean gotMessage, gotMessageArray;
     Message newMessage;
-    ArrayList<Message> messages;
+    public static ArrayList<Message> messages;
+    ServerListener sl;
     
     public Client()
     {
@@ -33,8 +38,10 @@ public class Client
         gotMessage = false;
         gotMessageArray = false;
         newMessage = null;
-        messages = null;
-        new ServerListener().start();
+        messages = new ArrayList<Message>();
+        //new ServerListener().start();
+        sl = new ServerListener();
+        sl.start();
     }
 
     public boolean authenticate(String userID, String pass)
@@ -61,19 +68,30 @@ public class Client
     {
         gotMessage = false;
         gotMessageArray = false;
-        newMessage = null;
-        messages = null;
     }
 
     public ArrayList <Message> getMessages() throws ClassNotFoundException, IOException
     {
+        messages = new ArrayList<Message>();
         Message m = new Message("MESSAGE_LIST");
         oos.writeObject(m);
         while(!gotMessageArray)
         {
+            System.out.println(gotMessageArray);
         }
-        System.out.println(messages.size());
+        //copyList(messages, sl.getList());
+        System.out.println(gotMessageArray +"     " +messages.size());
+
         return messages;
+    }
+
+    public void copyList(ArrayList<Message> to,ArrayList<Message> from )
+    {
+        to = new ArrayList<Message>();
+        for(Message c : from)
+        {
+            to.add(c);
+        }
     }
 
 
@@ -107,30 +125,44 @@ public class Client
     
     
     public class ServerListener extends Thread{
-        Object obj;
+        HashMap obj;
+        ArrayList <Message> temp;
     	public void run(){
     		while(true){
     			try{
-                    obj = null;
+                    obj = new HashMap();
+                    //System.out.println(temp.size());
     				try{
-    					obj = (Object)ois.readObject();
+    					obj.putAll((HashMap<Integer, Object>) ois.readObject());
     				}catch(IOException e){System.out.println("Error reading object from ois");}
-                    if (obj instanceof Message)
+                    if (obj.containsKey((Integer)0))
                     {
-                        newMessage = (Message) obj;
+                        newMessage = (Message) obj.get((Integer)0);
                         gotMessage = true;
                         System.out.println("YES SINGLE MESSAGE");
                     }
-                     if (obj instanceof ArrayList)
+                     if (obj.containsKey((Integer)1))
                     {
-                        messages = (ArrayList<Message>) obj;
+                        System.out.print("");
+                        copyList(messages, (ArrayList<Message>) obj.get((Integer)1));
+                        //temp = (ArrayList<Message>) obj.get((Integer)1);
+                        //messages = (ArrayList<Message>) obj.get((Integer)1);//addAll(obj.values());
+
                         gotMessageArray = true;
+                        //System.out.print("messages size"+messages.size());
                         System.out.println("YES MESSAGE");
+                        System.out.println(gotMessageArray);
                     }
+                    
     			}catch(ClassNotFoundException e2){}
     		}
     		
     	}
+
+        public ArrayList<Message> getList()
+        {
+            return temp;
+        }
     }	
     }
 

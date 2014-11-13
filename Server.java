@@ -43,6 +43,7 @@ public class Server {
 				// the client
 				ct.add(t); // save it in the ArrayList of the client threads
 				t.start(); // initialize the thread connectin
+				//sendToClient(messageList, t);
 			}
 			// If the server has to stop, all the threads and in/out streams
 			// have to be closed.
@@ -164,7 +165,6 @@ class ClientThread extends Thread {
 			out = new ObjectOutputStream(sock.getOutputStream());
 			// author = ((Message) in.readObject()).getAuthor();
 			System.out.println("Thread IO win!!");
-			sendToClient(messageList, this);
 		} catch (IOException e) {
 			System.out.println("There was an error creating the input/output stream"
 							+ e.toString());
@@ -184,8 +184,10 @@ class ClientThread extends Thread {
 				 if (message.getAuthor() == null)
 				 {
 				 	if(message.getText().equals("MESSAGE_LIST"))
-				 	System.out.println(messageList.size());
-				 	sendToClient(messageList, this);
+				 	{
+					 	System.out.println(messageList.size());
+					 	sendToClient(messageList, this);
+					}
 				 }
 				 else
 				 {
@@ -240,6 +242,7 @@ class ClientThread extends Thread {
 	}
 
 	public int sendMessage(Message msg,ArrayList<Message> messageList) {
+		HashMap<Integer ,Object> hm = new HashMap<Integer, Object>();
 		if(msg!=null){
 		if (socket.isClosed()==true) {
 			destructor();
@@ -248,7 +251,8 @@ class ClientThread extends Thread {
 		}else{
 		try {
 			System.out.println("trying to send a message");
-			out.writeObject(msg);
+			hm.put((Integer)0, msg);
+			out.writeObject(hm);
 		} catch (IOException e) {
 			System.out.println("error sending message"+e);
 		}
@@ -257,7 +261,8 @@ class ClientThread extends Thread {
 	}
 	}else if(messageList!=null) {
 		try{
-		out.writeObject(messageList);
+		hm.put((Integer)1,messageList);
+		out.writeObject(hm);
 		return 2;
 	}catch(IOException e){System.out.println("problem sending arraylist to client");}
 	}  return 0;

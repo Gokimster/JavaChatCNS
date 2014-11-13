@@ -118,6 +118,7 @@ public class ClientGUI extends JFrame implements ActionListener
     messageNoInArchive = 0;
     messageArchivePanel = new JPanel(new GridLayout(0,1));
     ArrayList <Message> messages = (ArrayList <Message>) client.getMessages();
+    System.out.println("GOT INIT MSGES");
     if (!messages.isEmpty())
     {
 	    for (int i = 0 ; i < messages.size(); i++)
@@ -136,6 +137,8 @@ public class ClientGUI extends JFrame implements ActionListener
 	    }
     }
     panelScroll = new JScrollPane(messageArchivePanel);
+    System.out.println("DONE INIT");
+    client.resetRecievedMessages();
   }
 
 
@@ -163,6 +166,7 @@ public class ClientGUI extends JFrame implements ActionListener
     messageArchivePanel.repaint();
     panelScroll= new JScrollPane(messageArchivePanel);
     tabPane.add("Message Archive",panelScroll);
+    client.resetRecievedMessages();
     System.out.println("done refresh");
   }
 
@@ -202,13 +206,12 @@ public class ClientGUI extends JFrame implements ActionListener
     messageSearchPanel.remove(searchScroll);
     JPanel midPanel = new JPanel(new GridLayout(0,1));
     ArrayList <Message> messages = client.getMessages();
-    client.resetRecievedMessages();
     int counter = 0;
     System.out.println(messages.size());
     for (int i = messages.size() -1 ; i >= 0; i--)
     {
       Message m = messages.get(i);
-      System.out.println(m.getAuthor());
+      System.out.println(m.getAuthor()+"TITLE:"+m.getTitle());
       if (m.getAuthor().equals(authorSearch.getText()))
       {
         if ((titleSearch.getText().equals("")) || (m.getTitle().equals(titleSearch.getText())))
@@ -220,6 +223,7 @@ public class ClientGUI extends JFrame implements ActionListener
         }
       }
       else
+      {
         if (authorSearch.getText().equals(""))
         {
           if (m.getTitle().equals(titleSearch.getText()))
@@ -230,11 +234,13 @@ public class ClientGUI extends JFrame implements ActionListener
               midPanel.add(createMessagePanel(m, true));
           }
         }
+      }
     }
     searchScroll = new JScrollPane(midPanel);
     messageSearchPanel.add(searchScroll, BorderLayout.CENTER);
     messageSearchPanel.revalidate();
     messageSearchPanel.repaint();
+    client.resetRecievedMessages();
     return counter;
   }
 
@@ -363,13 +369,14 @@ public class ClientGUI extends JFrame implements ActionListener
   {
     public void run()
     {
+      System.out.print("");
       while(true)
       {
+        System.out.print("");
         if(client.hasNewMessage())
         {
           try {
       			refreshArchivePanel();
-      			client.resetRecievedMessages();
 		    } catch (ClassNotFoundException | IOException e) {
 			System.out.println("Could not refresh panel");
 		  }
