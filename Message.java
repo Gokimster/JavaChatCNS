@@ -2,7 +2,7 @@ import java.util.*;
 import java.io.Serializable;
 import java.text.*;
 
-public class Message implements Serializable
+public class Message implements Serializable, Cloneable 
 {
   
   String author, title, text;
@@ -15,6 +15,14 @@ public class Message implements Serializable
   	this.title = title;
   	this.text = text;
   	date = new Date();
+  }
+
+   Message(Message m)
+  {
+    author = m.getAuthor();
+    title = m.getTitle();
+    text = m.getText();
+    date = m.getDate();
   }
 
   //instantiates a message with a specified date and time (used when decrypting the messages)

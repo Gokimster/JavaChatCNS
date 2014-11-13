@@ -72,12 +72,12 @@ public class Client
 
     public ArrayList <Message> getMessages() throws ClassNotFoundException, IOException
     {
-        messages = new ArrayList<Message>();
+        //messages = new ArrayList<Message>();
         Message m = new Message("MESSAGE_LIST");
         oos.writeObject(m);
         while(!gotMessageArray)
         {
-            System.out.println(gotMessageArray);
+            System.out.print("");
         }
         //copyList(messages, sl.getList());
         System.out.println(gotMessageArray +"     " +messages.size());
@@ -90,6 +90,7 @@ public class Client
         to = new ArrayList<Message>();
         for(Message c : from)
         {
+            System.out.println("add message)");
             to.add(c);
         }
     }
@@ -125,37 +126,33 @@ public class Client
     
     
     public class ServerListener extends Thread{
-        HashMap obj;
+        HashMap<Integer, Object> obj;
         ArrayList <Message> temp;
-    	public void run(){
-    		while(true){
-    			try{
-                    obj = new HashMap();
-                    //System.out.println(temp.size());
-    				try{
-    					obj.putAll((HashMap<Integer, Object>) ois.readObject());
-    				}catch(IOException e){System.out.println("Error reading object from ois");}
-                    if (obj.containsKey((Integer)0))
-                    {
-                        newMessage = (Message) obj.get((Integer)0);
-                        gotMessage = true;
-                        System.out.println("YES SINGLE MESSAGE");
-                    }
-                     if (obj.containsKey((Integer)1))
-                    {
-                        System.out.print("");
-                        copyList(messages, (ArrayList<Message>) obj.get((Integer)1));
-                        //temp = (ArrayList<Message>) obj.get((Integer)1);
-                        //messages = (ArrayList<Message>) obj.get((Integer)1);//addAll(obj.values());
+ 
+        public void run(){
+                while(true){
+                        try{
+                                obj = new HashMap();
+                                try{
+                                        obj.putAll((HashMap<Integer, Object>) ois.readObject());
+                                        if (obj.containsKey(0)) {
+                                                newMessage = (Message) obj.get(0);
+                                                gotMessage = true;
+                                                System.out.println("YES SINGLE MESSAGE");
+                                        }
+                                        if (obj.containsKey(1)) {
+                                                System.out.print("");
+                                                messages=(ArrayList<Message>) obj.get(1);
+                                                gotMessageArray = true;
+                                                System.out.println(((ArrayList<Message>) obj.get(1)).size());
+                                                System.out.println("YES MESSAGE");
+                                                System.out.println(gotMessageArray);
+                                                obj = null;
 
-                        gotMessageArray = true;
-                        //System.out.print("messages size"+messages.size());
-                        System.out.println("YES MESSAGE");
-                        System.out.println(gotMessageArray);
-                    }
-                    
-    			}catch(ClassNotFoundException e2){}
-    		}
+                                        }
+                                }catch(IOException e){System.out.println("Error reading object from ois");}
+                        }catch(ClassNotFoundException e2){}
+                }
     		
     	}
 

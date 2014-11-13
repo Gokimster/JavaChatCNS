@@ -261,7 +261,12 @@ class ClientThread extends Thread {
 	}
 	}else if(messageList!=null) {
 		try{
-		hm.put((Integer)1,messageList);
+		System.out.println("SERVER FINAL EMSSSAGE LIST"+ messageList.size());
+	    ArrayList<Message> clonedList = new ArrayList<Message>(messageList.size());
+	    for (Message temp : messageList) {
+        clonedList.add(new Message(temp));
+    	}
+		hm.put((Integer)1,clonedList);
 		out.writeObject(hm);
 		return 2;
 	}catch(IOException e){System.out.println("problem sending arraylist to client");}
