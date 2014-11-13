@@ -163,7 +163,6 @@ public class ClientGUI extends JFrame implements ActionListener
     messageArchivePanel.repaint();
     panelScroll= new JScrollPane(messageArchivePanel);
     tabPane.add("Message Archive",panelScroll);
-    System.out.println("done refresh");
   }
 
 
@@ -204,11 +203,9 @@ public class ClientGUI extends JFrame implements ActionListener
     ArrayList <Message> messages = client.getMessages();
     client.resetRecievedMessages();
     int counter = 0;
-    System.out.println(messages.size());
     for (int i = messages.size() -1 ; i >= 0; i--)
     {
       Message m = messages.get(i);
-      System.out.println(m.getAuthor());
       if (m.getAuthor().equals(authorSearch.getText()))
       {
         if ((titleSearch.getText().equals("")) || (m.getTitle().equals(titleSearch.getText())))

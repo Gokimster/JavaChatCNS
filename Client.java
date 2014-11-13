@@ -40,7 +40,6 @@ public class Client
     public boolean authenticate(String userID, String pass)
     {   
         //true for now, will have to check userId and pass true
-        System.out.println("AUTHENTICATING");
         this.userID = userID;
         return true;
     }
@@ -72,7 +71,6 @@ public class Client
         while(!gotMessageArray)
         {
         }
-        System.out.println(messages.size());
         return messages;
     }
 
@@ -119,13 +117,11 @@ public class Client
                     {
                         newMessage = (Message) obj;
                         gotMessage = true;
-                        System.out.println("YES SINGLE MESSAGE");
                     }
                      if (obj instanceof ArrayList)
                     {
                         messages = (ArrayList<Message>) obj;
                         gotMessageArray = true;
-                        System.out.println("YES MESSAGE");
                     }
     			}catch(ClassNotFoundException e2){}
     		}

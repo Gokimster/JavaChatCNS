@@ -184,7 +184,6 @@ class ClientThread extends Thread {
 				 if (message.getAuthor() == null)
 				 {
 				 	if(message.getText().equals("MESSAGE_LIST"))
-				 	System.out.println(messageList.size());
 				 	sendToClient(messageList, this);
 				 }
 				 else
