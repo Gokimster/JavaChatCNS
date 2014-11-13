@@ -2,10 +2,13 @@ import java.util.*;
 import java.io.Serializable;
 import java.text.*;
 
+import com.sun.javafx.iio.ImageFormatDescription.Signature;
+
 public class Message implements Serializable, Cloneable 
 {
   
   String author, title, text;
+  Signature signature;
   Date date;
 
   //instantiates a message with the current date and time
@@ -38,6 +41,15 @@ public class Message implements Serializable, Cloneable
   {
     this.text = request;
     this.author = null;
+  }
+
+  Message(String author, String title, String text, Signature signature)
+  {
+    this.author = author;
+    this.title = title;
+    this.text = text;
+    this.signature = signature;
+    date = new Date();
   }
 
   //returns the date and time in String format
