@@ -3,10 +3,15 @@ import java.io.*;
 import javax.net.ssl.*;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -14,20 +19,25 @@ import java.util.HashMap;
 public class Client
 {
 
-    String userID;
-    Socket sock;
-    public ObjectOutputStream oos;
-    public ObjectInputStream ois;
-    public boolean gotMessage, gotMessageArray;
-    Message newMessage;
+    //made them private, may bug, oups
+    private String userID;
+    private SSLSocket sock;
+    private ObjectOutputStream oos;
+    private ObjectInputStream ois;
+    private boolean gotMessage, gotMessageArray;
+    private Message newMessage;
     public static ArrayList<Message> messages;
-    ServerListener sl;
     
     public Client()
     {
         try
         {
-            sock = new Socket("localhost",9999);
+            //init SSL socket
+            SSLSocketFactory sf = (SSLSocketFactory)SSLSocketFactory.getDefault();
+            sock = (SSLSocket)sf.createSocket("localhost", 999);
+            sock.setEnabledCipherSuites(sock.getSupportedCipherSuites());
+
+            //init object input and outputstreams for socket
             oos = new ObjectOutputStream(sock.getOutputStream());
             ois = new ObjectInputStream(sock.getInputStream());
         }
@@ -35,13 +45,29 @@ public class Client
         {
             System.out.println("Something went wrong when creating Client");
         }
+
         gotMessage = false;
         gotMessageArray = false;
         newMessage = null;
         messages = new ArrayList<Message>();
-        //new ServerListener().start();
-        sl = new ServerListener();
-        sl.start();
+        //new ServerListener().start();new ServerListener().start()
+    }
+
+    private void initKeystore() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException
+    {
+        KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+        // get user password and file input stream
+        char[] password = "a".toCharArray();
+
+        java.io.FileInputStream fis = null;
+        try {
+            fis = new java.io.FileInputStream("clientKeyStore.txt");
+            ks.load(fis, password);
+        } finally {
+            if (fis != null) {
+                fis.close();
+            }
+        }
     }
 
     public boolean authenticate(String userID, String pass)
