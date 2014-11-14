@@ -1,8 +1,16 @@
 import java.io.*;
 import java.net.*;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
@@ -16,6 +24,9 @@ public class Server {
 	// should the server be listening or not
 	private boolean active;
 	private ArrayList<Message> messageList;
+	
+	String keystore;
+	String password;
 
 	public Server(int portNO) {
 		port = portNO;
@@ -23,14 +34,11 @@ public class Server {
 		messageList=new ArrayList<Message>();
 	}
 
-	public void start() {
+	public void start(SSLServerSocket s) {
 		active = true;
 		try {
-			// the socket used by the server
-			SSLServerSocketFactory f =
-			           (SSLServerSocketFactory)SSLServerSocketFactory.getDefault();
-			SSLServerSocket s = (SSLServerSocket)f.createServerSocket(port);
-			s.setEnabledCipherSuites(s.getSupportedCipherSuites());
+			//creating keystore factory
+			
 			// infinite loop to wait for connections
 			while (active) {
 				System.out.println("server active loop");
@@ -81,7 +89,22 @@ public class Server {
 
 	}
 
+		public void initialize() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, FileNotFoundException, IOException, UnrecoverableKeyException, KeyManagementException{
+			keystore="key.store";
+			password = "unicorn";
+			KeyStore ks = KeyStore.getInstance("JKS");
+			 ks.load(new FileInputStream(keystore), password.toCharArray());
+			 KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+			 kmf.init(ks, "rams".toCharArray());
+			 SSLContext sc = SSLContext.getInstance("SSLv3");
+			 sc.init(kmf.getKeyManagers(), null, null);
+			 SSLServerSocketFactory f = sc.getServerSocketFactory();
+			SSLServerSocket s = (SSLServerSocket)f.createServerSocket(port);
+			s.setEnabledCipherSuites(s.getSupportedCipherSuites());
+			start(s);
+		}
 	
+			
 		public void removeClient(ClientThread toClose){
 			if(ct.contains(toClose)){
 				System.out.println("In remove client");
@@ -128,7 +151,14 @@ public class Server {
 		int portnumber = 9999;
 		
 		Server server = new Server (portnumber);
-		server.start();
+		try {
+			server.initialize();
+		} catch (UnrecoverableKeyException | KeyManagementException
+				| NoSuchAlgorithmException | CertificateException
+				| KeyStoreException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		/*
 		 * byte[] buf = new byte[1024]; try { SSLServerSocketFactory f =
 		 * (SSLServerSocketFactory)SSLServerSocketFactory.getDefault(); int port
