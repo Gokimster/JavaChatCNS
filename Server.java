@@ -90,16 +90,18 @@ public class Server {
 	}
 
 		public void initialize() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, FileNotFoundException, IOException, UnrecoverableKeyException, KeyManagementException{
-			keystore="key.store";
+			keystore="cert.store";
 			password = "unicorn";
 			KeyStore ks = KeyStore.getInstance("JKS");
 			 ks.load(new FileInputStream(keystore), password.toCharArray());
 			 KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+			 System.out.println(password.toCharArray());
 			 kmf.init(ks, password.toCharArray());
 			 SSLContext sc = SSLContext.getInstance("SSLv3");
 			 sc.init(kmf.getKeyManagers(), null, null);
 			 SSLServerSocketFactory f = sc.getServerSocketFactory();
 			SSLServerSocket s = (SSLServerSocket)f.createServerSocket(port);
+			s.setEnabledCipherSuites(s.getSupportedCipherSuites());
 			
 			start(s);
 		}

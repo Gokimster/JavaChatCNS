@@ -43,6 +43,7 @@ public class Client
         catch (Exception e)
         {
             System.out.println("Something went wrong when creating Client");
+            e.printStackTrace();
         }
         //getCertificate();
         gotMessage = false;
@@ -62,7 +63,9 @@ public class Client
          SSLContext sc = SSLContext.getInstance("SSLv3");
          sc.init(null, tmf.getTrustManagers(), null);
          SSLSocketFactory f = sc.getSocketFactory();
-         return (SSLSocket)f.createSocket("localhost", 9999);
+         SSLSocket s = (SSLSocket)f.createSocket("localhost", 9999);
+         s.setEnabledCipherSuites(s.getSupportedCipherSuites());
+         return s;
     }
 
     private void initKeystore() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException
