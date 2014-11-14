@@ -95,12 +95,12 @@ public class Server {
 			KeyStore ks = KeyStore.getInstance("JKS");
 			 ks.load(new FileInputStream(keystore), password.toCharArray());
 			 KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-			 kmf.init(ks, "rams".toCharArray());
+			 kmf.init(ks, "serverunicorn".toCharArray());
 			 SSLContext sc = SSLContext.getInstance("SSLv3");
 			 sc.init(kmf.getKeyManagers(), null, null);
 			 SSLServerSocketFactory f = sc.getServerSocketFactory();
 			SSLServerSocket s = (SSLServerSocket)f.createServerSocket(port);
-			s.setEnabledCipherSuites(s.getSupportedCipherSuites());
+			
 			start(s);
 		}
 	
