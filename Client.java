@@ -45,7 +45,6 @@ public class Client
             System.out.println("Something went wrong when creating Client");
             e.printStackTrace();
         }
-        //getCertificate();
         gotMessage = false;
         gotMessageArray = false;
         newMessage = null;
@@ -66,32 +65,6 @@ public class Client
          SSLSocket s = (SSLSocket)f.createSocket("localhost", 9999);
          s.setEnabledCipherSuites(s.getSupportedCipherSuites());
          return s;
-    }
-
-    private void initKeystore() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException
-    {
-        KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-        // get user password and file input stream
-        char[] password = "a".toCharArray();
-
-        java.io.FileInputStream fis = null;
-        try {
-            fis = new java.io.FileInputStream("clientKeyStore.txt");
-            ks.load(fis, password);
-        } finally {
-            if (fis != null) {
-                fis.close();
-            }
-        }
-    }
-
-    private void getCertificate() throws CertificateException, IOException
-    {
-        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-        FileInputStream fis = new FileInputStream("clientCert.txt");
-        Certificate cert = (Certificate) certFactory.generateCertificate(fis);
-        fis.close();
-        System.out.println(cert);
     }
 
     public boolean authenticate(String userID, String pass)
@@ -122,7 +95,7 @@ public class Client
 
     public ArrayList <Message> getMessages() throws ClassNotFoundException, IOException
     {
-        Message m = new Message("MESSAGE_LIST");
+        Message m = new Message("MESSAGE_LIST", true);
         oos.writeObject(m);
         while(!gotMessageArray)
         {
