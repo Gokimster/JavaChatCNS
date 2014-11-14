@@ -80,4 +80,8 @@ public class Message implements Serializable, Cloneable
   {
   	return text;
   }
+  
+  public boolean isServerMessage(){
+	  return serverMessage;
+  }
 }

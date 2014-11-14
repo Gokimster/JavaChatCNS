@@ -95,14 +95,12 @@ public class Server {
 			KeyStore ks = KeyStore.getInstance("JKS");
 			 ks.load(new FileInputStream(keystore), password.toCharArray());
 			 KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-			 System.out.println(password.toCharArray());
 			 kmf.init(ks, password.toCharArray());
 			 SSLContext sc = SSLContext.getInstance("SSLv3");
 			 sc.init(kmf.getKeyManagers(), null, null);
 			 SSLServerSocketFactory f = sc.getServerSocketFactory();
 			SSLServerSocket s = (SSLServerSocket)f.createServerSocket(port);
 			s.setEnabledCipherSuites(s.getSupportedCipherSuites());
-			
 			start(s);
 		}
 	
@@ -113,7 +111,7 @@ public class Server {
 				ct.remove(toClose);
 			}
 		}
-		private int sendToClient(ArrayList<Message> list,ClientThread client){
+		/*private int sendToClient(ArrayList<Message> list,ClientThread client){
 			
 			if(client.sendMessage(null, messageList)==2){
 				System.out.println("message list send successfully");
@@ -122,7 +120,7 @@ public class Server {
 			System.out.println("Unsuccessful message send");
 			return 0;
 			
-		}
+		}*/
 		
 	public synchronized void distributeMessage(Message msg) {
 		messageList.add(msg);
@@ -214,18 +212,44 @@ class ClientThread extends Thread {
 			Message message;
 			System.out.println("In Thread's active while loop");
 			try {
-				System.out.println("reading message from thread");
+				
 				 message = (Message) in.readObject();
-				 if (message.getAuthor() == null)
-				 {
-				 	if(message.getText().equals("MESSAGE_LIST"))
-				 	{
-					 	System.out.println(messageList.size());
-					 	sendToClient(messageList, this);
-					}
+				 ArrayList<Message> searchResult = new ArrayList<Message>();
+				 if (message.isServerMessage()==true){
+					 if(message.getText().equals("MESSAGE_LIST")){
+						 sendMessage(null,messageList);
+					 }else if(message.getText().equals("SEARCH")){
+						 System.out.println("SEARCH REQUESTE RECEIVED"+message.getAuthor()+" "+message.getTitle());
+						 
+						 for (int i = messageList.size() -1 ; i >= 0; i--)
+					    {
+							 Message m = messageList.get(i);
+					      if (m.getAuthor().equals(message.getAuthor()))
+					      {
+					        if ((message.getTitle().equals("")) || (m.getTitle().equals(message.getTitle ())))
+					        {
+					          searchResult.add(m);
+					          System.out.println(m.getAuthor()+"TITLE:"+m.getTitle());
+					        }
+					      }
+					      else
+					      {
+					        if (message.getAuthor().equals(""))
+					        {
+					          if (m.getTitle().equals(message.getTitle()))
+					          {
+					            searchResult.add(m);
+					            System.out.println(m.getAuthor()+"TITLE:"+m.getTitle());
+					          }
+					        }
+					      }
+					    }
+						 System.out.println("searchSIZE TO SEND OVER"+searchResult.size());
+						 sendMessage(null,searchResult);
 				 }
-				 else
-				 {
+					 
+				 }
+				 else{
 				 	distributeMessage(message);
 				 }
 			} catch (IOException e) {
@@ -276,7 +300,7 @@ class ClientThread extends Thread {
 		
 	}
 
-	public int sendMessage(Message msg,ArrayList<Message> messageList) {
+	public int sendMessage(Message msg,ArrayList<Message> messages) {
 		HashMap<Integer ,Object> hm = new HashMap<Integer, Object>();
 		if(msg!=null){
 		if (socket.isClosed()==true) {
@@ -294,11 +318,12 @@ class ClientThread extends Thread {
 
 		return 1;
 	}
-	}else if(messageList!=null) {
+	}else if(messages!=null) {
 		try{
-		System.out.println("SERVER FINAL EMSSSAGE LIST"+ messageList.size());
-	    ArrayList<Message> clonedList = new ArrayList<Message>(messageList.size());
-	    for (Message temp : messageList) {
+		//System.out.println("SERVER FINAL EMSSSAGE LIST"+ messageList.size());
+	    ArrayList<Message> clonedList = new ArrayList<Message>(messages.size());
+	    System.out.println(clonedList.size());
+	    for (Message temp : messages) {
         clonedList.add(new Message(temp));
     	}
 		hm.put((Integer)1,clonedList);
@@ -310,6 +335,38 @@ class ClientThread extends Thread {
 
 }
 }
+
+
+/*
+ * for (int i = messages.size() -1 ; i >= 0; i--)
+    {
+      Message m = messages.get(i);
+      System.out.println(m.getAuthor()+"TITLE:"+m.getTitle());
+      if (m.getAuthor().equals(authorSearch.getText()))
+      {
+        if ((titleSearch.getText().equals("")) || (m.getTitle().equals(titleSearch.getText())))
+        {
+          if (++counter % 2 != 0)
+            midPanel.add(createMessagePanel(m, false));
+          else 
+            midPanel.add(createMessagePanel(m, true));
+        }
+      }
+      else
+      {
+        if (authorSearch.getText().equals(""))
+        {
+          if (m.getTitle().equals(titleSearch.getText()))
+          {
+            if (++counter % 2 != 0)
+              midPanel.add(createMessagePanel(m, false));
+            else 
+              midPanel.add(createMessagePanel(m, true));
+          }
+        }
+      }
+    }
+ */
 
 /*
  * FOR SOCKET FACTORY
