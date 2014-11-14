@@ -36,7 +36,6 @@ public class Client
         catch (Exception e)
         {
             System.out.println("Something went wrong when creating Client");
-            e.printStackTrace();
         }
         gotMessage = false;
         gotMessageArray = false;

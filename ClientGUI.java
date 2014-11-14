@@ -14,14 +14,14 @@ import java.util.ArrayList;
 public class ClientGUI extends JFrame implements ActionListener 
 {
 
-  JTextField userID, pass, title, authorSearch, titleSearch;
-  JTextArea message;
-  JButton sendButton, searchButton, loginButton;
-  int messageNoInArchive;
-  Client client;
-  JPanel messageCreationPanel, messageArchivePanel, messageSearchPanel, loginPanel;
-  JTabbedPane tabPane;
-  JScrollPane panelScroll, searchScroll;
+  private JTextField userID, pass, title, authorSearch, titleSearch;
+  private JTextArea message;
+  private JButton sendButton, searchButton, loginButton;
+  private int messageNoInArchive;
+  private Client client;
+  private JPanel messageCreationPanel, messageArchivePanel, messageSearchPanel, loginPanel;
+  private JTabbedPane tabPane;
+  private JScrollPane panelScroll, searchScroll;
 
   ClientGUI() throws CertificateException, IOException
   {
