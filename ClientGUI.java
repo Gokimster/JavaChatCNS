@@ -206,7 +206,7 @@ public class ClientGUI extends JFrame implements ActionListener
   {
     messageSearchPanel.remove(searchScroll);
     JPanel midPanel = new JPanel(new GridLayout(0,1));
-    ArrayList <Message> messages = client.getSearchMessages(m.getAuthor(), m.getTitle());
+    ArrayList <Message> messages = client.getSearchMessages(authorSearch.getText(), titleSearch.getText());
     int counter = 0;
     System.out.println(messages.size());
     for (int i = 0 ; i <messages.size(); i++)
