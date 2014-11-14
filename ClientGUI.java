@@ -4,6 +4,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 
@@ -68,10 +72,9 @@ public class ClientGUI extends JFrame implements ActionListener
             {
                 try {
 					loginButtonAction();
-				} catch (ClassNotFoundException | IOException e1) {
-					System.out.println("Could not do login action");
-				}
-              
+				} catch (Exception e1) {
+          showErrorMessage("Not logged in", "Could not log in, please check your details");
+				}             
             }});
     JPanel botPanel = new JPanel(new GridLayout(1,1));
     botPanel.add(loginButton);
@@ -106,7 +109,7 @@ public class ClientGUI extends JFrame implements ActionListener
             		sendButtonAction();
             	}catch(Exception ex)
             	{
-            		System.out.println("Message coud not be sent");
+            		showErrorMessage("Message not sent", "Message could not be sent");
             	}
             }});
     botPanel.add(sendButton);
@@ -119,7 +122,6 @@ public class ClientGUI extends JFrame implements ActionListener
     messageNoInArchive = 0;
     messageArchivePanel = new JPanel(new GridLayout(0,1));
     ArrayList <Message> messages = (ArrayList <Message>) client.getMessages();
-    System.out.println("GOT INIT MSGES");
     if (!messages.isEmpty())
     {
 	    for (int i = 0 ; i < messages.size(); i++)
@@ -138,7 +140,6 @@ public class ClientGUI extends JFrame implements ActionListener
 	    }
     }
     panelScroll = new JScrollPane(messageArchivePanel);
-    System.out.println("DONE INIT");
     client.resetRecievedMessages();
   }
 
@@ -161,14 +162,14 @@ public class ClientGUI extends JFrame implements ActionListener
 
   private void refreshArchivePanel() throws ClassNotFoundException, IOException
   {    
-    tabPane.remove(panelScroll);
     addMessageToArchive();
     messageArchivePanel.revalidate();
     messageArchivePanel.repaint();
-    panelScroll= new JScrollPane(messageArchivePanel);
-    tabPane.add("Message Archive",panelScroll);
+    panelScroll.setViewportView(messageArchivePanel);
+    panelScroll.revalidate();
+    panelScroll.repaint();
     client.resetRecievedMessages();
-    System.out.println("done refresh");
+    System.out.println("refreshed archive");
   }
 
 
@@ -194,7 +195,7 @@ public class ClientGUI extends JFrame implements ActionListener
                 try {
         					searchButtonAction();
         				} catch (ClassNotFoundException | IOException e1) {
-        					System.out.println("Could noy search for messages");
+                  showErrorMessage("Could not search", "There was a problem when searching for messages");
         				}
             }});
     botPanel.add(searchButton);
@@ -253,7 +254,7 @@ public class ClientGUI extends JFrame implements ActionListener
     return main;
   }
 
-  private void loginButtonAction() throws ClassNotFoundException, IOException
+  private void loginButtonAction() throws ClassNotFoundException, IOException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, KeyManagementException, CertificateException
   {
     if (checkLoginBoxesFilled())
     {
@@ -351,16 +352,15 @@ public class ClientGUI extends JFrame implements ActionListener
   {
     public void run()
     {
-      System.out.print("");
       while(true)
       {
-        System.out.print("");
+        System.out.println("");
         if(client.hasNewMessage())
         {
           try {
       			refreshArchivePanel();
 		    } catch (ClassNotFoundException | IOException e) {
-			System.out.println("Could not refresh panel");
+			showErrorMessage("Problem refreshing archive", "Could not refresh the archive with the new message");
 		  }
         }
       }

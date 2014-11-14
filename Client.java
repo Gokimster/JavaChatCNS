@@ -1,22 +1,14 @@
 import java.io.*;
-
 import javax.net.ssl.*;
-
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.net.Socket;
-import java.security.Certificate;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 
 public class Client
@@ -30,6 +22,7 @@ public class Client
     private boolean gotMessage, gotMessageArray;
     private Message newMessage;
     public static ArrayList<Message> messages;
+    KeyStore ks;
     
     public Client() throws CertificateException, IOException
     {
@@ -37,7 +30,7 @@ public class Client
         {
         	sock = initSocket();
             //init object input and outputstreams for socket
-            oos = new ObjectOutputStream(sock.getOutputStream());
+        	oos = new ObjectOutputStream(sock.getOutputStream());
             ois = new ObjectInputStream(sock.getInputStream());
         }
         catch (Exception e)
@@ -55,27 +48,28 @@ public class Client
     //init SSL socket
     private SSLSocket initSocket() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, FileNotFoundException, IOException, KeyManagementException
     {
-         KeyStore ks = KeyStore.getInstance("JKS");
-         ks.load(new FileInputStream("cert.store"), "unicorn".toCharArray());
-         TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-         tmf.init(ks);
-         SSLContext sc = SSLContext.getInstance("SSLv3");
-         sc.init(null, tmf.getTrustManagers(), null);
-         SSLSocketFactory f = sc.getSocketFactory();
-         SSLSocket s = (SSLSocket)f.createSocket("localhost", 9999);
-         s.setEnabledCipherSuites(s.getSupportedCipherSuites());
-         return s;
+        ks = KeyStore.getInstance("JKS");
+        ks.load(new FileInputStream("key.store"), "unicorn".toCharArray());
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+        tmf.init(ks);
+        SSLContext sc = SSLContext.getInstance("SSLv3");
+        sc.init(null, tmf.getTrustManagers(), null);
+        SSLSocketFactory f = sc.getSocketFactory();
+        SSLSocket s = (SSLSocket)f.createSocket("localhost", 9999);
+        s.setEnabledCipherSuites(s.getSupportedCipherSuites());
+        return s;
     }
 
-    public boolean authenticate(String userID, String pass)
+    public boolean authenticate(String userID, String pass) throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, KeyManagementException, CertificateException, IOException
     {   
-        //true for now, will have to check userId and pass true
-        System.out.println("AUTHENTICATING");
-        this.userID = userID;
-        return true;
+        if (ks.getKey(userID, pass.toCharArray())!= null)
+        {
+        	this.userID = userID;
+        	return true;
+        }
+        return false;
     }
     
-
     public void sendMessage(String title, String text) throws IOException
     {
         Message m = new Message(userID, title, text);
@@ -101,20 +95,18 @@ public class Client
         {
             System.out.print("");
         }
-        System.out.println(gotMessageArray +"     " +messages.size());
 
         return messages;
     }
 
     public ArrayList <Message> getSearchMessages(String author, String title) throws ClassNotFoundException, IOException
     {
-        Message m = new Message(author, title, "MESSAGE_LIST", true);
+        Message m = new Message(author, title, "SEARCH", true);
         oos.writeObject(m);
         while(!gotMessageArray)
         {
             System.out.print("");
         }
-        System.out.println(gotMessageArray +"     " +messages.size());
 
         return messages;
     }
@@ -129,29 +121,9 @@ public class Client
     {
         return gotMessageArray;
     }
-
-    public static void main(String[] args) throws IOException, ClassNotFoundException, CertificateException 
-    {
-    	
-        Client c = new Client();
-        
-        while(true){
-        System.out.print("Enter Something : ");
-        InputStreamReader rd = new InputStreamReader(System.in);
-        BufferedReader ed = new BufferedReader(rd);
-        String temp = ed.readLine();
-        c.sendMessage(temp, temp);
-        ArrayList <Message> tm = c.getMessages();
-        System.out.print(tm.get(0).getText());
-        }
-        
-    }
-    
-    
     
     public class ServerListener extends Thread{
         HashMap<Integer, Object> obj;
-        ArrayList <Message> temp;
  
         public void run(){
                 while(true){
@@ -162,28 +134,21 @@ public class Client
                                         if (obj.containsKey(0)) {
                                                 newMessage = (Message) obj.get(0);
                                                 gotMessage = true;
-                                                System.out.println("YES SINGLE MESSAGE");
                                         }
                                         if (obj.containsKey(1)) {
-                                                System.out.print("");
                                                 messages=(ArrayList<Message>) obj.get(1);
                                                 gotMessageArray = true;
                                                 System.out.println(((ArrayList<Message>) obj.get(1)).size());
-                                                System.out.println("YES MESSAGE");
-                                                System.out.println(gotMessageArray);
                                                 obj = null;
 
                                         }
-                                }catch(IOException e){System.out.println("Error reading object from ois");}
+                                }catch(IOException e){//System.out.println("Error reading object from ois");}
+                                
+                                }
                         }catch(ClassNotFoundException e2){}
                 }
     		
     	}
-
-        public ArrayList<Message> getList()
-        {
-            return temp;
-        }
     }	
     }
 
