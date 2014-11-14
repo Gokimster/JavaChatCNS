@@ -206,36 +206,17 @@ public class ClientGUI extends JFrame implements ActionListener
   {
     messageSearchPanel.remove(searchScroll);
     JPanel midPanel = new JPanel(new GridLayout(0,1));
-    ArrayList <Message> messages = client.getMessages();
+    ArrayList <Message> messages = client.getSearchMessages(m.getAuthor(), m.getTitle());
     int counter = 0;
     System.out.println(messages.size());
-    for (int i = messages.size() -1 ; i >= 0; i--)
+    for (int i = 0 ; i <messages.size(); i++)
     {
       Message m = messages.get(i);
       System.out.println(m.getAuthor()+"TITLE:"+m.getTitle());
-      if (m.getAuthor().equals(authorSearch.getText()))
-      {
-        if ((titleSearch.getText().equals("")) || (m.getTitle().equals(titleSearch.getText())))
-        {
           if (++counter % 2 != 0)
             midPanel.add(createMessagePanel(m, false));
           else 
             midPanel.add(createMessagePanel(m, true));
-        }
-      }
-      else
-      {
-        if (authorSearch.getText().equals(""))
-        {
-          if (m.getTitle().equals(titleSearch.getText()))
-          {
-            if (++counter % 2 != 0)
-              midPanel.add(createMessagePanel(m, false));
-            else 
-              midPanel.add(createMessagePanel(m, true));
-          }
-        }
-      }
     }
     searchScroll = new JScrollPane(midPanel);
     messageSearchPanel.add(searchScroll, BorderLayout.CENTER);

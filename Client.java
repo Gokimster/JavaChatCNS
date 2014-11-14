@@ -106,6 +106,19 @@ public class Client
         return messages;
     }
 
+    public ArrayList <Message> getSearchMessages(String author, String title) throws ClassNotFoundException, IOException
+    {
+        Message m = new Message(author, title, "MESSAGE_LIST", true);
+        oos.writeObject(m);
+        while(!gotMessageArray)
+        {
+            System.out.print("");
+        }
+        System.out.println(gotMessageArray +"     " +messages.size());
+
+        return messages;
+    }
+
 
     public boolean hasNewMessage()
     {
