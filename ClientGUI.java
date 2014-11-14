@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 
 public class ClientGUI extends JFrame implements ActionListener 
@@ -18,12 +19,12 @@ public class ClientGUI extends JFrame implements ActionListener
   JTabbedPane tabPane;
   JScrollPane panelScroll, searchScroll;
 
-  ClientGUI()
+  ClientGUI() throws CertificateException, IOException
   {
       init();
   }
 
-  public void init()
+  public void init() throws CertificateException, IOException
   {
     client = new Client();
     initLoginPanel();
@@ -354,7 +355,7 @@ public class ClientGUI extends JFrame implements ActionListener
     JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
   }
 
-  public static void main(String[] argv)
+  public static void main(String[] argv) throws CertificateException, IOException
   {
     new ClientGUI();
   }

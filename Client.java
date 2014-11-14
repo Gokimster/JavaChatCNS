@@ -8,10 +8,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.security.Certificate;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,15 +31,11 @@ public class Client
     private Message newMessage;
     public static ArrayList<Message> messages;
     
-    public Client()
+    public Client() throws CertificateException, IOException
     {
         try
         {
-            //init SSL socket
-            SSLSocketFactory sf = (SSLSocketFactory)SSLSocketFactory.getDefault();
-            sock = (SSLSocket)sf.createSocket("localhost", 9999);
-            sock.setEnabledCipherSuites(sock.getSupportedCipherSuites());
-
+        	sock = initSocket();
             //init object input and outputstreams for socket
             oos = new ObjectOutputStream(sock.getOutputStream());
             ois = new ObjectInputStream(sock.getInputStream());
@@ -45,12 +44,25 @@ public class Client
         {
             System.out.println("Something went wrong when creating Client");
         }
-
+        //getCertificate();
         gotMessage = false;
         gotMessageArray = false;
         newMessage = null;
         messages = new ArrayList<Message>();
         new ServerListener().start();
+    }
+
+    //init SSL socket
+    private SSLSocket initSocket() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, FileNotFoundException, IOException, KeyManagementException
+    {
+         KeyStore ks = KeyStore.getInstance("JKS");
+         ks.load(new FileInputStream("cert.store"), "unicorn".toCharArray());
+         TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+         tmf.init(ks);
+         SSLContext sc = SSLContext.getInstance("SSLv3");
+         sc.init(null, tmf.getTrustManagers(), null);
+         SSLSocketFactory f = sc.getSocketFactory();
+         return (SSLSocket)f.createSocket("localhost", 9999);
     }
 
     private void initKeystore() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException
@@ -68,6 +80,15 @@ public class Client
                 fis.close();
             }
         }
+    }
+
+    private void getCertificate() throws CertificateException, IOException
+    {
+        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+        FileInputStream fis = new FileInputStream("clientCert.txt");
+        Certificate cert = (Certificate) certFactory.generateCertificate(fis);
+        fis.close();
+        System.out.println(cert);
     }
 
     public boolean authenticate(String userID, String pass)
@@ -120,7 +141,7 @@ public class Client
         return gotMessageArray;
     }
 
-    public static void main(String[] args) throws IOException, ClassNotFoundException 
+    public static void main(String[] args) throws IOException, ClassNotFoundException, CertificateException 
     {
     	
         Client c = new Client();
