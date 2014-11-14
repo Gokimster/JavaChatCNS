@@ -85,6 +85,8 @@ public class Client
     {
         gotMessage = false;
         gotMessageArray = false;
+        newMessage = null;
+        messages = new ArrayList<Message>();
     }
 
     public ArrayList <Message> getMessages() throws ClassNotFoundException, IOException
@@ -138,7 +140,6 @@ public class Client
                                         if (obj.containsKey(1)) {
                                                 messages=(ArrayList<Message>) obj.get(1);
                                                 gotMessageArray = true;
-                                                System.out.println(((ArrayList<Message>) obj.get(1)).size());
                                                 obj = null;
 
                                         }

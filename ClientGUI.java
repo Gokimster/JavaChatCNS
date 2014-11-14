@@ -169,7 +169,6 @@ public class ClientGUI extends JFrame implements ActionListener
     panelScroll.revalidate();
     panelScroll.repaint();
     client.resetRecievedMessages();
-    System.out.println("refreshed archive");
   }
 
 
@@ -209,11 +208,9 @@ public class ClientGUI extends JFrame implements ActionListener
     JPanel midPanel = new JPanel(new GridLayout(0,1));
     ArrayList <Message> messages = client.getSearchMessages(authorSearch.getText(), titleSearch.getText());
     int counter = 0;
-    System.out.println(messages.size());
     for (int i = 0 ; i <messages.size(); i++)
     {
       Message m = messages.get(i);
-      System.out.println(m.getAuthor()+"TITLE:"+m.getTitle());
           if (++counter % 2 != 0)
             midPanel.add(createMessagePanel(m, false));
           else 
@@ -354,7 +351,7 @@ public class ClientGUI extends JFrame implements ActionListener
     {
       while(true)
       {
-        System.out.println("");
+        System.out.print("");
         if(client.hasNewMessage())
         {
           try {
